@@ -3,6 +3,7 @@ import warnings
 from PeripheryFunctions.BF_zscore import BF_zscore
 
 def lempel_ziv_complexity(data):
+    # adapted from Michael Small's code (add reference)
     # Convert data to symbols
     s = [int(np.floor(x)) + 1 for x in data]
     bins = max(s) if s else 0  # bins is the maximum symbol value

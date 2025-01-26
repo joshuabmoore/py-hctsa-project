@@ -31,7 +31,8 @@ def MD_hrv_classic(y):
     # Calculate PSD
     # ------------------------------------------------------------------------------
 
-    F, Pxx = signal.periodogram(y, window = np.hanning(N), )
+    nfft = max(256, 2**int(np.ceil(np.log2((N)))))
+    F, Pxx = signal.periodogram(y, window = np.hanning(len(y)), detrend=False, scaling='density', fs=2*np.pi, nfft=nfft)
 
     # Calculate spectral measures such as subband spectral power percentage, LF/HF ratio etc.
     LF_lo = 0.04 # /pi -- fraction of total power (max F is pi)
@@ -100,33 +101,3 @@ def MD_hrv_classic(y):
     out["SD2"] = math.sqrt(2 * sigma**2 - (1/2) * rmssd**2) * 1000
 
     return out
-
-# def periodogram(x, win, nfft=1024):
-#     ''' Periodogram
-#     Periodogram power spectral density estimate (written to be a 1:1 with MATLAB's implementation)
-    
-#     :param x: time series data (e.g. audio signal), ideally length matches nfft
-#     :param win: window function to be applied (e.g. Hanning window). in this case win expects already data points of the window to be provided.
-#     :param nfft: number of bins for FFT (ideally matches length of x)
-#     :return: Periodogram power spectrum (np.array)
-#     '''
-   
-#     U  = np.dot(win.conj().transpose(), win) # compensates for the power of the window.
-#     Xx = fft((x * win),nfft) # verified
-#     P  = Xx*np.conjugate(Xx)/U
-    
-#     # Compute the 1-sided or 2-sided PSD [Power/freq] or mean-square [Power].
-#     # Also, compute the corresponding freq vector & freq units.
-    
-#     # Generate the one-sided spectrum [Power] if so wanted
-#     if nfft % 2 != 0:
-#         select = np.arange((nfft+1)/2)  # ODD
-#         P = P[select,:] # Take only [0,pi] or [0,pi)
-#         P[1:-1] = P[1:-1] * 2 # Only DC is a unique point and doesn't get doubled
-#     else:
-#         #select = np.arange(nfft/2+1);    # EVEN
-#         P[1:-2] = P[1:-2] * 2
-
-#     P = P / (2 * np.pi)
-
-#     return P
