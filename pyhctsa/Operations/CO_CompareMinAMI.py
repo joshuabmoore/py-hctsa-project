@@ -49,7 +49,7 @@ def CO_CompareMinAMI(y, binMethod, numBins = 10):
     out['range'] = np.ptp(amiMins)
     out['median'] = np.median(amiMins)
     out['mean'] = np.mean(amiMins)
-    out['std'] = np.std(amiMins, ddof=1)
+    out['std'] = np.std(amiMins, ddof=1) # will return NaN for single values instead of 0
     out['nunique'] = len(np.unique(amiMins))
     out['mode'], out['modef'] = stats.mode(amiMins)
     out['modef'] = out['modef']/numBinsRange

@@ -25,9 +25,9 @@ def CO_PartialAutoCorr(y, max_tau=10, what_method='ols'):
     if max_tau <= 0:
         raise ValueError('Negative or zero time lags not applicable')
 
-    method_map = {'ols': 'ols', 'yule_walker': 'yw'}
+    method_map = {'ols': 'ols', 'Yule-Walker': 'ywm'} 
     if what_method not in method_map:
-        raise ValueError(f"Invalid method: {what_method}. Use 'ols' or 'yule_walker'.")
+        raise ValueError(f"Invalid method: {what_method}. Use 'ols' or 'Yule-Walker'.")
 
     # Compute partial autocorrelation
     pacf_values = pacf(y, nlags=max_tau, method=method_map[what_method])

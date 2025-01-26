@@ -11,7 +11,8 @@ dependencies = [
     "jpype1 @ git+https://github.com/jpype-project/jpype.git@v1.5.2",
     "scipy (>=1.15.1,<2.0.0)",
     "numpy (>=2.2.2,<3.0.0)",
-    "scikit-learn (>=1.6.1,<2.0.0)"
+    "scikit-learn (>=1.6.1,<2.0.0)",
+    "statsmodels (>=0.14.4,<0.15.0)"
 ]
 
 
