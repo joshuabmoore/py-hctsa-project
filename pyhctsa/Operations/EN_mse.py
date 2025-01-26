@@ -1,7 +1,7 @@
 from Operations.EN_SampEn import EN_SampEn
 from PeripheryFunctions.BF_PreProcess import BF_PreProcess
 from PeripheryFunctions.BF_zscore import BF_zscore
-from PeripheryFunctions.BF_MakeBuffer import BF_MakeBuffer
+from PeripheryFunctions.BF_makeBuffer import BF_MakeBuffer
 import numpy as np 
 
 def EN_mse(y, scaleRange = None, m = 2, r = 0.15, preProcessHow = None):
