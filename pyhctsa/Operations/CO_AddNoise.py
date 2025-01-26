@@ -8,7 +8,7 @@ from PeripheryFunctions.BF_iszscored import BF_iszscored
 from scipy.optimize import curve_fit
 import warnings
 
-def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = None, randomSeed = None):
+def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = 10, randomSeed = None):
     """
     CO_AddNoise: Changes in the automutual information with the addition of noise
 
