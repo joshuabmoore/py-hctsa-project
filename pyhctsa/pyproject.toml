@@ -1,0 +1,20 @@
+[project]
+name = "pyhctsa"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Joshua Moore",email = "jmoo2880@sydney.edu.au"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "jpype1 @ git+https://github.com/jpype-project/jpype.git@v1.5.2",
+    "scipy (>=1.15.1,<2.0.0)",
+    "numpy (>=2.2.2,<3.0.0)",
+    "scikit-learn (>=1.6.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
