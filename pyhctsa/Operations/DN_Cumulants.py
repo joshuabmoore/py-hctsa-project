@@ -20,11 +20,11 @@ def DN_Cumulants(y, cumWhatMay = 'skew1'):
     float : the higher order moment.
     """
     if cumWhatMay == 'skew1':
-        out = stats.skew(y)
+        out = stats.skew(y, bias=True)
     elif cumWhatMay == 'skew2':
         out = stats.skew(y, bias=False)
     elif cumWhatMay == 'kurt1':
-        out = stats.kurtosis(y, fisher=False)
+        out = stats.kurtosis(y, fisher=False, bias=True)
     elif cumWhatMay == 'kurt2':
         out = stats.kurtosis(y, bias=False, fisher=False)
     else:

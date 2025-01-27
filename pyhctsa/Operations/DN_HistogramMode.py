@@ -6,6 +6,9 @@ def DN_HistogramMode(y, numBins = 10, doSimple = True):
     Mode of a data vector.
     Measures the mode of the data vector using histograms with a given number
     of bins.
+    Note that when using doSoimple = False, values won't map directly onto the
+    HCTSA outputs due to differences in how the bins are constructed.
+    However, the trends are similar.
 
     Parameters:
     -----------

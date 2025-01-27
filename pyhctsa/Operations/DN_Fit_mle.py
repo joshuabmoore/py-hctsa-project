@@ -1,4 +1,5 @@
 from scipy import stats
+import numpy as np
 
 def DN_Fit_mle(y, fitWhat = 'gaussian'):
     """

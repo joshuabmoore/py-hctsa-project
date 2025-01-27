@@ -7,6 +7,8 @@ def DN_HistogramAsymmetry(y, numBins = 10, doSimple = True):
     """
     Measures of distributional asymmetry
     Measures the asymmetry of the histogram distribution of the input data vector.
+    Note that when using `doSimple = False`, output will be different to MATLAB due 
+    to differences in the histogram function.
 
     Parameters:
     -----------

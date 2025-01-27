@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import stats
 
-def DN_Mean(y, mean_type='arithmetic'):
+def DN_Mean2(y, mean_type='arithmetic'):
     """
     A given measure of location of a data vector.
 
@@ -35,14 +35,14 @@ def DN_Mean(y, mean_type='arithmetic'):
     elif mean_type == 'geom': # geometric mean
         out = stats.gmean(y)
     elif mean_type == 'harm': # harmonic mean
-        out = stats.hmean(y)
+        out = N/sum(y**(-1))
     elif mean_type == 'rms':
         out = np.sqrt(np.mean(y**2))
     elif mean_type == 'iqm': # interquartile mean, cf. DN_TrimmedMean
-        p = np.percentile(y, [25, 75])
+        p = np.percentile(y, [25, 75], method='averaged_inverted_cdf')
         out = np.mean(y[(y >= p[0]) & (y <= p[1])])
     elif mean_type == 'midhinge':  # average of 1st and third quartiles
-        p = np.percentile(y, [25, 75])
+        p = np.percentile(y, [25, 75], method='averaged_inverted_cdf') # method to match MATLAB
         out = np.mean(p)
     else:
         raise ValueError(f"Unknown mean type '{mean_type}'")
