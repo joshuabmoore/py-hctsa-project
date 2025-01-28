@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 
-def CO_AutoCorr(y, tau=1, method='Fourier'):
+def CO_AutoCorr(y : list, tau : int = 1, method : str ='Fourier'):
     """
     Compute the autocorrelation of an input time series.
 
@@ -57,7 +57,7 @@ def CO_AutoCorr(y, tau=1, method='Fourier'):
                     out[i] = acf[t]
     
     elif method == 'TimeDomainStat':
-        sigma2 = np.var(y)  # time-series variance
+        sigma2 = np.std(y, ddof=1)**2  # time-series variance
         mu = np.mean(y)  # time-series mean
         
         def acf_y(t):
@@ -78,13 +78,15 @@ def CO_AutoCorr(y, tau=1, method='Fourier'):
                 y1n = y1[good_r] - np.mean(y1[good_r])
                 y2 = y[t:]
                 y2n = y2[good_r] - np.mean(y2[good_r])
-                out[i] = np.mean(y1n * y2n) / np.std(y1[good_r], ddof=1) / np.std(y2[good_r], ddof=1)
+                # std() ddof adjusted to be consistent with numerator's N normalization
+                out[i] = np.mean(y1n * y2n) / np.std(y1[good_r], ddof=0) / np.std(y2[good_r], ddof=0)
             else:
                 y1 = y[:N-t]
                 y2 = y[t:]
-                out[i] = np.mean((y1 - np.mean(y1)) * (y2 - np.mean(y2))) / np.std(y1, ddof=1) / np.std(y2, ddof=1)
+                # std() ddof adjusted to be consistent with numerator's N normalization
+                out[i] = np.mean((y1 - np.mean(y1)) * (y2 - np.mean(y2))) / np.std(y1, ddof=0) / np.std(y2, ddof=0)
     
     else:
-        raise ValueError(f"Unknown autocorrelation estimation method '{method}'")
+        raise ValueError(f"Unknown autocorrelation estimation method '{method}'.")
     
     return out
