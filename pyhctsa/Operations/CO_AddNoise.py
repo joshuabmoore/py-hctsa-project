@@ -1,14 +1,14 @@
 import numpy as np
+from typing import Optional
 from Operations.CO_HistogramAMI import CO_HistogramAMI
 from Operations.CO_FirstCrossing import CO_FirstCrossing
 from Operations.IN_AutoMutualInfo import IN_AutoMutualInfo
 from Operations.CO_AutoCorr import CO_AutoCorr
-from PeripheryFunctions.BF_SignChange import BF_SignChange
 from PeripheryFunctions.BF_iszscored import BF_iszscored
 from scipy.optimize import curve_fit
-import warnings
+from loguru import logger
 
-def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = 10, randomSeed = None):
+def CO_AddNoise(y : list, tau : int = 1, amiMethod : str = 'even', extraParam : str = 10, randomSeed : Optional[int]  = None) -> dict:
     """
     CO_AddNoise: Changes in the automutual information with the addition of noise
 
@@ -26,7 +26,7 @@ def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = 10, randomSeed = No
     """
 
     if not BF_iszscored(y):
-        warnings.warn("Input time series should be z-scored")
+        logger.warning("Input time series should be z-scored.")
     
     # Set tau to minimum of autocorrelation function if 'ac' or 'tau'
     if tau in ['ac', 'tau']:
@@ -35,6 +35,8 @@ def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = 10, randomSeed = No
     # Generate noise
     if randomSeed is not None:
         np.random.seed(randomSeed)
+    else:
+        np.random.seed(0)
     noise = np.random.randn(len(y)) # generate uncorrelated additive noise
 
     # Set up noise range
@@ -80,7 +82,7 @@ def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = 10, randomSeed = No
     # Count number of times the AMI function crosses its mean
     out['pcrossmean'] = np.sum(np.diff(np.sign(amis - np.mean(amis))) != 0) / (numRepeats - 1)
 
-    # Fit exponential decay
+    # Fit exponential decay model 
     expFunc = lambda x, a, b : a * np.exp(b * x)
     popt, pcov = curve_fit(expFunc, noiseRange, amis, p0=[amis[0], -1])
     out['fitexpa'], out['fitexpb'] = popt
@@ -103,7 +105,7 @@ def CO_AddNoise(y, tau = 1, amiMethod = 'even', extraParam = 10, randomSeed = No
 def firstUnder_fn(x, m, p):
     """
     Find the value of m for the first time p goes under the threshold, x. 
-    p and m vectors of the same length
+    p and m are vectors of the same length
     """
     first_i = next((m_val for m_val, p_val in zip(m, p) if p_val < x), m[-1])
     return first_i
