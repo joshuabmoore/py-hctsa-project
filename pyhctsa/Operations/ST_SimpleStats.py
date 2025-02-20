@@ -1,6 +1,6 @@
 import numpy as np
 from PeripheryFunctions.BF_SignChange import BF_SignChange
-from PeripheryFunctions.BF_zscore import BF_zscore
+from pyhctsa.Operations.BF_zscore import BF_zscore
 from scipy.signal import detrend
 
 def ST_SimpleStats(x, whatStat):

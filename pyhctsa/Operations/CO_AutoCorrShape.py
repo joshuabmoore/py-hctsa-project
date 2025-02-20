@@ -3,9 +3,10 @@ from scipy.optimize import curve_fit
 from Operations.CO_AutoCorr import CO_AutoCorr
 from Operations.CO_FirstCrossing import CO_FirstCrossing
 from PeripheryFunctions.BF_SignChange import BF_SignChange
-import warnings
+from loguru import logger
+from typing import Union
 
-def CO_AutoCorrShape(y, stopWhen = 'posDrown'):
+def CO_AutoCorrShape(y : list, stopWhen : Union[int, str] = 'posDrown'):
     """
     CO_AutoCorrShape: How the autocorrelation function changes with the time lag.
 
@@ -47,7 +48,7 @@ def CO_AutoCorrShape(y, stopWhen = 'posDrown'):
             for i in range(1, N+1):
                 acf_val = CO_AutoCorr(y, i-1, 'Fourier')[0]
                 if np.isnan(acf_val):
-                    warnings.warn("Weird time series (constant?)")
+                    logger.warning("Weird time series (constant?)")
                     out = np.nan
                 if acf_val < th:
                     # Ensure ACF is all positive

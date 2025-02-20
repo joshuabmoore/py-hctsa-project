@@ -1,7 +1,7 @@
 import numpy as np
 import math 
 
-def CO_RM_AMInformation(y, tau = 1):
+def RM_AMInformation(y : list, tau : int = 1):
     """
     A wrapper for rm_information(), which calculates automutal information
 
@@ -18,13 +18,15 @@ def CO_RM_AMInformation(y, tau = 1):
     """
 
     if tau >= len(y):
+        return np.nan
+    elif tau == 0:
+        # handle the case when tau = 0 (no lag)
+        y1 = y2 = y
+    else:
+        y1 = y[:-tau]
+        y2 = y[tau:]
 
-        return
-
-    y1 = y[:-tau]
-    y2 = y[tau:]
-
-    out = RM_information(y1,y2)
+    out = RM_information(y1, y2)
 
     return out[0]
 

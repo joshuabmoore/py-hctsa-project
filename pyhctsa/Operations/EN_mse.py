@@ -1,6 +1,6 @@
 from Operations.EN_SampEn import EN_SampEn
 from PeripheryFunctions.BF_PreProcess import BF_PreProcess
-from PeripheryFunctions.BF_zscore import BF_zscore
+from pyhctsa.Operations.BF_zscore import BF_zscore
 from PeripheryFunctions.BF_makeBuffer import BF_MakeBuffer
 import numpy as np 
 

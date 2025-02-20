@@ -1,0 +1,1004 @@
+# features related to correlation structure
+CO:      
+  # autocorrelation
+  AutoCorr:
+    labels:
+      - correlation
+    dependencies:
+    configs:
+      - tau: !range [1, 40]
+        method: 'Fourier'
+        zscore: True
+  
+  # Partial autocorrelation
+  PartialAutoCorr:
+    labels:
+      - correlation
+    dependencies:
+    configs:
+      - max_tau: 20
+        what_method: 'ols'
+        zscore: True
+  
+  AutoCorrShape:
+    labels:
+      - correlation
+    dependencies:
+      - scipy
+    configs:
+      - stopWhen: ['drown', 'posDrown']
+        zscore: True
+  
+  FirstCrossing:
+    labels:
+      - correlation
+    dependencies:
+    configs:
+      - corr_fun: 'ac'
+        threshold: [0, 0.36787944117144233]
+        zscore: True
+
+  HistogramAMI:
+    labels:
+      - information
+      - correlation
+      - AMI
+    dependencies:
+    configs:
+      - tau: [!range [1, 5]]
+        meth: ['std1', 'std2', 'even', 'quantiles']
+        numBins: [2, 5, 10]
+        zscore: True
+  
+  CompareMinAMI:
+    labels:
+      - correlation
+      - AMI
+    dependencies:
+      - scipy
+    configs:
+      - binMethod: ['std1', 'quantiles', 'even', 'std2']
+        numBins: [!range [2, 80]]
+        zscore: True
+
+  NonlinearAutoCorr:
+    labels:
+      - correlation
+      - nonlinearautocorr
+    dependencies:
+    configs:
+      - taus: [!range [1, 2], !range [1, 4], !range [1, 6], !range [1, 8]]
+        doAbs: [False, True]
+        zscore: True
+      - taus: [!range [1, 3], !range [1, 5], !range [1, 7]]
+        doAbs: False
+        zscore: True
+      - taus: [[1, 3], [2, 4]]
+        doAbs: [False, True]
+        zscore: True
+      - taus: [[1, 3, 5], [2, 4, 6], [1, 2, 5], [1, 3, 4]]
+        doAbs: False
+        zscore: True
+      - taus: [[1, 3, 5, 7], [2, 4, 6, 8], [1, 4], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
+        doAbs: [False, True]
+        zscore: True
+      - taus: [[0, 1, 1], [0, 2, 2], [0, 3, 3], [0, 4, 4], [0, 5, 5], [0, 6, 6], [0, 0, 1], [0, 0, 2], [0, 0, 3], [0, 0, 4], [0, 0, 5], [0, 0, 6],
+              [0, 1, 2], [0, 1, 3], [0, 2, 3], [0, 1, 4], [0, 2, 4], [0, 3, 4], [0, 1, 5], [0, 2, 5], [0, 3, 5], [0, 4, 5], [0, 1, 6], [0, 2, 6], 
+              [0, 3, 6], [0, 4, 6], [0, 5, 6], [1, 1, 2], [1, 1, 3], [1, 2, 2], [1, 3, 3], [2, 2, 3], [2, 3, 3]]
+        doAbs: False
+        zscore: True
+
+  Embed2:
+    labels:
+      - embedding
+      - correlation
+    dependencies:
+    configs:
+      - tau: 'tau'
+        zscore: True
+
+  Embed2_AngleTau:
+    labels:
+      - embedding
+      - correlation
+    dependencies:
+    configs:
+      - maxTau: 50
+        zscore: True
+
+  Embed2_Basic:
+    labels:
+      - embedding
+      - correlation
+    dependencies:
+    configs:
+      - tau: [1, 'tau']
+        zscore: True
+
+  Embed2_Dist:
+    labels:
+      - embedding
+      - correlation
+    dependencies:
+      - scipy
+    configs:
+      - tau: 'tau'
+        zscore: True
+
+  Embed2_Shapes:
+    labels:
+      - embedding
+      - correlation
+    depedencies:
+    configs:
+      - tau: 'tau'
+        shape: 'circle'
+        r: [0.1, 1]
+        zscore: True
+  
+  GLSCF:
+    labels:
+      - correlation
+      - glscf
+    dependencies:
+    configs:
+      - alpha: 1.0
+        beta: [1.0, 2.0, 5.0, 10.0]
+        tau: !range [1, 5]
+        zscore: True
+      - alpha: 1.0
+        beta: [1.0, 2.0, 5.0, 10.0]
+        tau: 'tau'
+        zscore: True
+      - alpha: 2.0
+        beta: [2.0, 5.0]
+        tau: !range [1, 5]
+        zscore: True
+      - alpha: 2.0
+        beta: [2.0, 5.0]
+        tau: 'tau'
+        zscore: True
+  
+  FZCGLSCF:
+    labels:
+      - correlation
+      - glscf
+      - tau
+    dependencies:
+    configs:
+      - alpha: 1.0
+        beta: !range [1, 10]
+        zscore: True
+      - alpha: 2.0
+        beta: [2, 5, 10]
+        zscore: True
+      - alpha: 5.0
+        beta: [5, 10]
+        zscore: True
+      - alpha: 10
+        beta: 10
+        zscore: True
+
+  RM_AMInformation:
+    labels:
+      - information
+      - correlation
+      - AMI
+    dependencies:
+    configs:
+      - tau: !range [0, 10]
+        zscore: True
+  
+  StickAngles:
+    labels:
+      - correlation
+      - discrepancy
+    dependencies:
+    configs:
+      - zscore: True
+
+CR:
+  # rescaled auto density
+  RAD:
+    labels:
+      - criticality
+    dependencies:
+    configs:
+      - tau: [1, 2, 'tau']
+        zscore: True
+
+DN:
+  CustomSkewness:
+    labels: 
+      - distribution
+      - moment
+      - shape
+      - raw
+      - locationDependent
+    dependencies:
+    configs:
+      - whatSkew: ['pearson']
+      - whatSkew: ['bowley']
+        zscore: True
+
+  CV:
+    labels:
+      - distribution
+      - spread
+      - cv
+      - raw
+      - locationDependent
+      - spreadDependent
+    dependencies:
+    configs:
+      - k: [1, 2]
+        zscore: False
+
+  Fit_mle:
+    labels:
+      - distribution
+    dependencies:
+      - scipy
+    configs:
+      - fitWhat: ['geometric']
+        zscore: True
+
+  Burstiness:
+    labels:
+      - distribution
+      - raw
+      - locationDependent
+      - spreadDependent
+    dependencies:
+    configs:
+  
+  HighLowMu:
+    labels:
+      - distribution
+      - raw
+      - locationDependent
+      - spreadDependent
+    dependencies:
+    configs:
+
+  HistogramAsymmetry:
+    labels:
+      - distribution
+      - discrepancy
+    dependencies:
+    configs:
+      - numBins: 11
+        doSimple: False
+        zscore: True
+  
+  HistogramMode:
+    labels:
+      - distribution
+    dependencies:
+    configs:
+      - numBins: [5, 10, 21]
+        doAbs: [False, True]
+        doSimple: True
+        zscore: True
+
+  Mean:
+    labels:
+      - distribution
+      - location
+      - raw
+      - locationDependent
+    dependencies:
+      - scipy
+    configs:
+      - mean_type: ['norm', 'harm', 'rms', 'median', 'midhinge']
+
+  MinMax:
+    labels:
+      - distribution
+    dependencies:
+    configs:
+      - minOrMax: ['max', 'min']
+        zscore: True
+
+  Moments:
+    labels:
+      - distribution
+      - moment
+      - shape
+    dependencies:
+      - scipy
+    configs:
+      - theMom: [3, 4, 5, 6, 7, 8, 9, 10, 11]
+        zscore: True
+      - theMom: [3, 4, 5, 6, 7, 8, 9, 10, 11]
+        zscore: False
+  
+  Pleft:
+    labels:
+      - distribution
+      - spread
+    dependencies:
+    configs:
+      - th : [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+        zscore: True
+  
+  ProportionValues:
+    labels:
+      - distribution
+      - raw
+    dependencies:
+    configs:
+      - propWhat: ['zeros', 'positive', 'geq0']
+  
+  Quantile:
+    labels:
+      - distribution
+    dependencies:
+    configs:
+      - p: [0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99]
+        zscore: True
+
+  RemovePoints:
+    labels:
+      - correlation
+      - outliers
+      - distribution
+    dependencies:
+      - scipy
+    configs:
+      - removeHow: 'absclose'
+        p: [0.1, 0.5, 0.8]
+        removeOrSaturate: 'remove'
+        zscore: True
+      - removeHow: 'absfar'
+        p: [0.1, 0.8]
+        removeOrSaturate: ['remove', 'saturate']
+        zscore: True
+      - removeHow: 'min'
+        p: [0.1, 0.5, 0.8]
+        removeOrSaturate: 'saturate'
+        zscore: True
+      - removeHow: 'max'
+        p: [0.1, 0.8]
+        removeOrSaturate: 'saturate'
+        zscore: True
+  
+  Spread:
+    labels:
+      - raw
+      - spread
+      - distribution
+      - spreadDependent
+    dependencies:
+      - scipy
+    configs:
+      - spreadMeasure: ['std', 'mad', 'iqr', 'mead']
+    
+  TrimmedMean:
+    labels:
+      - distribution
+      - location
+      - raw
+      - locationDependent
+    dependencies:
+    configs:
+      - p_exclude: [1, 5, 10, 25, 50]
+  
+  Unique:
+    labels:
+      - distribution
+      - raw
+    dependencies:
+
+  Withinp:
+    labels:
+      - distribution
+      - spread
+    dependencies:
+    configs:
+      - p: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+        meanOrMedian: ['mean', 'median']
+        zscore: True
+
+EN:
+  ApEN:
+    labels:
+      - entropy
+    dependencies:
+    configs:
+      - mnom: [1, 2]
+        rth: [0.1, 0.2]
+        zscore: True
+  
+  CID:
+    labels:
+      - entropy
+    dependencies:
+    configs:
+      - zscore: True
+  
+  LZcomplexity:
+    labels:
+      - entropy
+      - intensive
+    dependencies:
+    configs:
+      - nbits: !range [2, 10]
+        preProc: ['none', 'diff']
+        zscore: True
+  
+  PermEn:
+    labels:
+      - entropy
+      - intensive
+    dependencies:
+      - antropy
+    configs:
+      - m: !range [2, 5]
+        tau: [1, 2, 'ac']
+        zscore: True
+
+  SampEn:
+    labels:
+      - entropy
+      - intensive
+    dependencies:
+      - numba
+    configs:
+      - M: 5
+        r: [0.05, 0.1, 0.15, 0.2, 0.3]
+        zscore: True
+      - M: 5
+        r: [0.1, 0.2]
+        preProcessHow: 'diff1'
+        zscore: True
+    
+  MSEnt:
+    labels:
+      - entropy
+      - intensive
+    dependencies:
+    configs:
+      - scaleRange: [!range [1, 10]]
+        m: 2
+        r: 0.15
+        preProcessHow: ['diff1', 'rescale_tau']
+        zscore: True
+      - scaleRange: [!range [1, 10]]
+        m: 2
+        r: 0.15
+        zscore: True
+
+  WEntropy:
+    labels:
+      - entropy
+    dependencies:
+    configs:
+      - whaten: ['shannon', 'logenergy']
+        zscore: True
+
+IN:
+  AutoMutualInfoStats:
+    labels:
+      - information
+      - correlation
+      - AMI
+    dependencies:
+      - jpype
+      - JIDT
+    configs:
+      - maxTau: [40, 20]
+        estMethod: 'gaussian'
+        zscore: True
+      - maxTau: [40, 20]
+        estMethod: 'kraskov1'
+        extraParam: '4'
+        zscore: True
+
+  AddNoise:
+    labels:
+      - correlation
+      - AMI 
+      - entropy
+    dependencies:
+      - JIDT
+      - scipy
+    configs:
+      - tau: [1, 'ac']
+        amiMethod: ['quantiles', 'even', 'std1']
+        extraParam: 10
+        zscore: True
+      - tau: [1, 'ac']
+        amiMethod: 'gaussian'
+        zscore: True
+      - tau: [1, 'ac']
+        amiMethod: 'kraskov1'
+        extraParam: 4
+        zscore: True
+
+  FirstMin:
+    labels:
+      - correlation
+      - AMI
+    dependencies:
+      - JIDT
+    configs:
+      - minWhat: ['ac', 'mi-gaussian']
+        zscore: True
+      - minWhat: ['mi-kraskov1', 'mi-kraskov2']
+        extraParam: '4'
+        zscore: True
+      - minWhat: 'mi-hist'
+        extraParam: [5, 10]
+        zscore: True
+      - minWhat: ['ac', 'mi-gaussian']
+        minNotMax: False
+        zscore: True
+      - minWhat: ['mi-kraskov1', 'mi-kraskov2']
+        extraParam: '4'
+        minNotMax: False
+        zscore: True
+      - minWhat: 'mi-hist'
+        extraParam: [5, 10]
+        minNotMax: False
+        zscore: True
+    
+EX:
+  # extreme events
+  MovingThreshold:
+    labels:
+      - outliers
+    dependencies:
+    configs:
+      - a: 0.1
+        b: [0.1, 0.02]
+        zscore: True
+      - a: 1.0
+        b: [0.1, 0.02]
+        zscore: True
+
+MD:
+  # medical
+  HRV_classic:
+    labels:
+      - medical
+      - discrepancy
+    dependencies:
+    configs:
+      - zscore: True
+
+  PNN:
+    labels:
+      - medical
+      - raw
+      - spreadDependent
+    dependencies:
+
+  Polvar:
+    labels:
+      - medical
+      - symbolic
+    dependencies:
+    configs:
+      - d: [1.0, 0.5, 0.1]
+        D: [3, 5, 4, 6]
+        zscore: True
+
+  RawHRVmeas:
+    labels:
+      - medical 
+      - raw
+      - discrepancy
+    dependencies:
+
+# Remove for testing, far too slow.
+# NL:
+#   FNN:
+#     labels:
+#       - nonlinear
+#       - fnn
+#       - intensive
+#       - discrepancy
+#     dependencies:
+#       - nolitsa
+#     configs:
+#       - maxdim: 10
+#         tau: 'mi'
+#         th: 5
+#         kth: 1
+#         zscore: True
+
+SB:
+  BinaryStats:
+    labels:
+      - symbolic
+      - distribution
+      - correlation
+      - stationarity
+    dependencies:
+    configs:
+      - binaryMethod: ['mean', 'diff', 'iqr']
+        zscore: True
+
+  BinaryStretch:
+    labels:
+      - binary
+      - symbolic
+    dependencies:
+    configs:
+      - stretchWhat: ['lseq1', 'lseq0']
+        zscore: True
+
+  MotifTwo:
+    labels: 
+        - symbolic
+        - motifs
+    dependencies:
+    configs:
+      - binarizeHow: ['diff', 'mean', 'median']
+        zscore: True
+
+  MotifThree:
+    labels: 
+      - symbolic
+      - motifs
+    dependencies:
+    configs:
+      - cgHow: ['quantile', 'diffquant']
+        zscore: True
+  
+  TransitionMatrix:
+    labels:
+      - symbolic
+      - transitionmat
+      - discrepancy
+    dependencies:
+    configs:
+      - howtocg: 'quantile'
+        numGroups: !range [2, 5]
+        tau: 1
+        zscore: True
+      - howtocg: 'quantile'
+        numGroups: !range [3, 5] # discrepancy when using numGroups = 2 specifically for 'ac' warrants further investigation
+        tau: 'ac'
+        zscore: True
+
+SC:
+  # Scaling
+  FastDFA:
+    labels:
+      - scaling
+    dependencies:
+    configs:
+      - zscore: True
+
+  # FluctAnal:
+  #   labels:
+  #     - scaling
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - q: 2
+  #       wtf: ['nothing', 'endpotdiff', 'range', 'std', 'iqr']
+  #       logInc: True
+  #       zscore: True
+
+ST:
+  # stationarity
+  FitPolynomial:
+    labels:
+      - trend
+      - stationarity
+    dependencies:
+    configs:
+      - k: !range [1, 4]
+        zscore: True
+  TSLength:
+    labels:
+      - misc
+      - raw
+      - stationarity
+      - lengthDependent
+    dependencies:
+  
+  LocalExrema:
+    labels:
+      - stationarity
+      - distribution
+    dependencies:
+    configs:
+      - howToWindow: 'l'
+        winLength: [50, 100]
+        zscore: True
+      - howToWindow: 'n'
+        winLength: [25, 50, 100]
+        zscore: True
+  
+  MomentCorr:
+    labels:
+      - statistics
+    dependencies:
+    configs:
+      - windowLength: 0.02
+        wOverlap: 0.2
+        mom1: ['mean', 'median']
+        mom2: ['std', 'iqr']
+        whatTransform: ['none', 'abs', 'sqrt']
+        zscore: True
+  
+  SimpleStats:
+    labels:
+      - noisiness
+      - statistics
+    dependencies:
+      - scipy
+    configs:
+      - whatStat: ['zcross', 'pmcross']
+        zscore: True
+
+SY:
+  # stationarity-based
+  DriftingMean:
+    labels:
+      - stationarity
+    dependencies:
+    configs:
+      - segmentHow: 'fix'
+        l: [20, 50, 100]
+        zscore: True
+      - segmentHow: 'num'
+        l: [5, 10]
+        zscore: True
+  
+  DynWin:
+    labels:
+      - stationarity
+    dependencies:
+      - scipy
+    configs:
+      - maxNumSegments: 10
+        zscore: True
+
+  KPSStest:
+    labels:
+      - stationarity
+      - hypothesistest
+    dependencies:
+      - statsmodels
+    configs:
+      - lags: [0, 1, 2]
+        zscore: True
+      - lags: [!range [0, 10]]
+        zscore: True
+
+  LocalGlobal:
+    labels:
+      - stationarity
+      - distribution
+    dependencies:
+    configs:
+      - subsetHow: ['l', 'unicg']
+        nsamps: [10, 20, 50, 100, 500]
+        zscore: True
+      - subsetHow: 'p'
+        nsamps: [0.01, 0.05, 0.1, 0.5]
+        zscore: True
+  
+  RangeEvolve:
+    labels:
+      - stationarity
+    dependencies:
+    configs:
+      - zscore: True
+
+  SlidingWindow:
+    labels:
+      - stationarity
+    dependencies:
+    configs:
+      - windowStat: 'mean'
+        acrossWinStat: 'std'
+        numSeg: !range [2, 10]
+        incMove: 1
+        zscore: True
+      - windowStat: 'mean'
+        acrossWinStat: 'std'
+        numSeg: [2, 5, 10]
+        incMove: [2, 10]
+        zscore: True
+      - windowStat: 'mean'
+        acrossWinStat: 'sampen'
+        numSeg: 10
+        incMove: [1, 2, 10]
+        zscore: True
+      - windowStat: 'mean'
+        acrossWinStat: 'sampen'
+        numSeg: [2, 5]
+        incMove: 10
+        zscore: True
+      - windowStat: 'std'
+        acrossWinStat: 'std'
+        numSeg: [2, 5, 10]
+        incMove: [1, 2, 10]
+        zscore: True
+      - windowStat: 'std'
+        acrossWinStat: 'sampen'
+        numSeg: [2, 5, 10]
+        incMove: 10
+        zscore: True
+      - windowStat: 'std'
+        acrossWinStat: 'sampen'
+        numSeg: 10
+        incMove: [1, 2]
+        zscore: True
+      - windowStat: 'sampen'
+        acrossWinStat: 'std'
+        numSeg: [2, 5, 10]
+        incMove: [1, 2, 10]
+        zscore: True
+      - windowStat: 'sampen'
+        acrossWinStat: 'sampen'
+        numSeg: [2, 5, 10]
+        incMove: 10
+        zscore: True
+      - windowStat: 'sampen'
+        acrossWinStat: 'sampen'
+        numSeg: 10
+        incMove: [1, 2]
+        zscore: True
+      - windowStat: 'mom3'
+        acrossWinStat: 'std'
+        numSeg: [2, 5, 10]
+        incMove: [1, 2, 10]
+        zscore: True
+      - windowStat: 'mom3'
+        acrossWinStat: 'sampen'
+        numSeg: [2, 5, 10]
+        incMove: 10
+        zscore: True
+      - windowStat: 'mom3'
+        acrossWinStat: 'sampen'
+        numSeg: 10
+        incMove: [1, 2]
+        zscore: True
+      - windowStat: 'mom4'
+        acrossWinStat: 'std'
+        numSeg: [2, 5, 10]
+        incMove: [1, 2, 10]
+        zscore: True
+      - windowStat: 'mom4'
+        acrossWinStat: 'sampen'
+        numSeg: [2, 5, 10]
+        incMove: 10
+        zscore: True
+      - windowStat: 'mom4'
+        acrossWinStat: 'sampen'
+        numSeg: 10
+        incMove: [1, 2]
+        zscore: True
+      - windowStat: 'AC1'
+        acrossWinStat: 'std'
+        numSeg: [2, 5, 10]
+        incMove: [1, 2, 10]
+        zscore: True
+      - windowStat: 'AC1'
+        acrossWinStat: 'sampen'
+        numSeg: [2, 5, 10]
+        incMove: 10
+        zscore: True
+      - windowStat: 'AC1'
+        acrossWinStat: 'sampen'
+        numSeg: 10
+        incMove: [1, 2]
+        zscore: True
+
+  # SpreadRandomLocal:
+  #   label:
+  #     - stationarity
+  #     - stochastic
+  #   depedencies:
+  #     - scipy
+  #   configs:
+  #     - l: ['ac2', 'ac5']
+  #       numSegs: 100
+  #       zscore: True
+  #     - l: [50, 100, 200]
+  #       numSegs: 100
+  #       zscore: True
+
+  StatAv:
+    labels:
+      - stationarity
+      - StatAv
+    dependencies:
+    configs:
+      - whatType: 'len'
+        extraParam: [25, 50, 100, 150, 200, 250, 500, 1000]
+        zscore: True
+
+  StdNthDer:
+    labels:
+      - stationarity
+    dependencies:
+    configs:
+      - ndr: [1, 2, 3, 4, 5, 10]
+        zscore: True
+  
+  StdNthDerChange:
+    labels:
+      - stationarity
+    dependencies:
+      - scipy
+    configs:
+      - zscore: True
+  
+  Trend:
+    labels:
+      - stationarity
+    dependencies:
+      - scipy
+    configs:
+      - zscore: True
+
+MISC:
+  # miscellaneous - provisional structure to avoid circular imports due to dependencies between functions
+  TranslateShape:
+    labels:
+      - correlation
+      - discrepancy
+    dependencies:
+    configs:
+      - shape: 'circle'
+        d: [1.5, 2.5, 3.5]
+        howToMove: 'pts'
+        zscore: True
+      - shape: 'rectangle'
+        d: 2
+        howToMove: 'pts'
+        zscore: True
+  
+  TC3:
+    labels:
+      - correlation
+      - nonlinear
+    dependencies:
+    configs:
+      - tau: [1, 2, 3]
+        zscore: True
+      - tau: ['ac', 'mi']
+        zscore: True
+
+  TRev:
+    labels:
+      - correlation
+      - nonlinear
+    dependencies:
+    configs:
+      - tau: [1, 2, 3]
+        zscore: True
+      - tau: ['ac', 'mi']
+        zscore: True
+
+  PeriodicityWang:
+    labels:
+      - periodicity
+      - spline
+    dependencies:
+      - scipy
+    configs:
+      - zscore: True
+
+  ForcePotential:
+    labels:
+      - physics
+      - dynamicalSystem
+    dependencies:
+    configs:
+      - whatPotential: 'dblwell'
+        params: [[1, 0.2, 0.1], [1, 0.5, 0.2], [2, 0.05, 0.2], [3, 0.01, 0.1]]
+        zscore: True
+      - whatPotential: 'sine'
+        params: [[3,0.5,1], [1,1,1], [10,0.04,10]]
+        zscore: True
+
+    

@@ -10,7 +10,7 @@ def SY_PPtest(y, lags = range(0, 6)):
         # evaluate test statistic at each lag
         models = []
         for l in lags:
-            pp = PhillipsPerron(y, lags=l, trend='n')
+            pp = PhillipsPerron(y, lags=l, trend='c')
             models.append(pp)
         # extract output summaries
         pVals = [models[i].pvalue for i in range(len(models))]

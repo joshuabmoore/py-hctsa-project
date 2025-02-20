@@ -1,6 +1,6 @@
 import numpy as np
 import warnings
-from PeripheryFunctions.BF_zscore import BF_zscore
+from pyhctsa.Operations.BF_zscore import BF_zscore
 
 def lempel_ziv_complexity(data):
     # adapted from Michael Small's code (add reference)

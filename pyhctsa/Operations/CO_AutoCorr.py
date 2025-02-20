@@ -1,5 +1,5 @@
 import numpy as np
-import warnings
+from loguru import logger
 
 def CO_AutoCorr(y : list, tau : int = 1, method : str ='Fourier'):
     """
@@ -32,9 +32,9 @@ def CO_AutoCorr(y : list, tau : int = 1, method : str ='Fourier'):
     if tau:
         # if list is not empty
         if np.max(tau) > N - 1:  # -1 because acf(1) is lag 0
-            warnings.warn(f'Time lag {np.max(tau)} is too long for time-series length {N}')
+            logger.warning(f"Time lag {np.max(tau)} is too long for time-series length {N}.")
         if np.any(np.array(tau) < 0):
-            warnings.warn('Negative time lags not applicable')
+            logger.warning('Negative time lags not applicable.')
     
     if method == 'Fourier':
         n_fft = 2 ** (int(np.ceil(np.log2(N))) + 1)

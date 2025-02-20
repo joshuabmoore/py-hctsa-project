@@ -1,10 +1,13 @@
+# scaling
 import numpy as np
-from Operations.CO_AutoCorr import CO_AutoCorr
-from warnings import warn
+from typing import Union
 from scipy.interpolate import CubicSpline
 import statsmodels.api as sm
+from CO import AutoCorr
+from loguru import logger
 
-def SC_FluctAnal(x, q = 2, wtf = 'rsrange', tauStep = 1, k = 1, lag = None, logInc = True):
+
+def FluctAnal(x, q = 2, wtf = 'rsrange', tauStep = 1, k = 1, lag = None, logInc = True):
     """
     """
 
@@ -38,7 +41,7 @@ def SC_FluctAnal(x, q = 2, wtf = 'rsrange', tauStep = 1, k = 1, lag = None, logI
     #print(taur)
     if ntau < 8: # fewer than 8 points
         # time series is too short for analysing using this fluctuation analysis. 
-        warn(f"This time series (N = {N}) is too short to analyze using this fluctuation analysis.")
+        logger.warning(f"This time series (N = {N}) is too short to analyze using this fluctuation analysis.")
         out = np.nan
     
     # 2) Compute the fluctuation function, F
@@ -182,6 +185,151 @@ def doRobustLinearFit(out, logtt, logFF, theRange, fieldName):
         out[f'{fieldName}se1'] = results.bse[0]
         out[f'{fieldName}se2'] = results.bse[1]
         out[f'{fieldName}ssr'] = np.mean(results.resid ** 2)
-        out[f'{fieldName}resac1'] = CO_AutoCorr(results.resid, 1, 'Fourier')[0]
+        out[f'{fieldName}resac1'] = AutoCorr(results.resid, 1, 'Fourier')[0]
     
     return out
+
+
+def _buffer(X, n, p=0, opt=None):
+    '''Mimic MATLAB routine to generate buffer array
+
+    MATLAB docs here: https://se.mathworks.com/help/signal/ref/buffer.html.
+    Taken from: https://stackoverflow.com/questions/38453249/does-numpy-have-a-function-equivalent-to-matlabs-buffer 
+
+    Parameters
+    ----------
+    x: ndarray
+        Signal array
+    n: int
+        Number of data segments
+    p: int
+        Number of values to overlap
+    opt: str
+        Initial condition options. default sets the first `p` values to zero,
+        while 'nodelay' begins filling the buffer immediately.
+
+    Returns
+    -------
+    result : (n,n) ndarray
+        Buffer array created from X
+    '''
+    import numpy as np
+
+    if opt not in [None, 'nodelay']:
+        raise ValueError('{} not implemented'.format(opt))
+
+    i = 0
+    first_iter = True
+    while i < len(X):
+        if first_iter:
+            if opt == 'nodelay':
+                # No zeros at array start
+                result = X[:n]
+                i = n
+            else:
+                # Start with `p` zeros
+                result = np.hstack([np.zeros(p), X[:n-p]])
+                i = n-p
+            # Make 2D array and pivot
+            result = np.expand_dims(result, axis=0).T
+            first_iter = False
+            continue
+
+        # Create next column, add `p` results from last col if given
+        col = X[i:i+(n-p)]
+        if p != 0:
+            col = np.hstack([result[:,-1][-p:], col])
+        i += n-p
+
+        # Append zeros if last row and not length `n`
+        if len(col) < n:
+            col = np.hstack([col, np.zeros(n-len(col))])
+
+        # Combine result with next row
+        result = np.hstack([result, np.expand_dims(col, axis=0).T])
+
+    return result
+
+def FastDFA(x : list, intervals : Union[list, None] = None):
+    """
+    Perform detrended fluctuation analysis on a 
+    nonstationary input signal.
+
+    Adapted from the the original fastdfa code by Max A. Little and 
+    publicly-available at http://www.maxlittle.net/software/index.php
+    M. Little, P. McSharry, I. Moroz, S. Roberts (2006),
+    Nonlinear, biophysically-informed speech pathology detection
+    in Proceedings of ICASSP 2006, IEEE Publishers: Toulouse, France.
+
+    Parameters:
+    -----------
+    x: 
+        Input signal (must be a 1D numpy array)
+    intervals: 
+        Optional list of sample interval widths at each scale
+
+    Returns:
+    --------
+    intervals: 
+        List of sample interval widths at each scale
+    flucts: 
+        List of fluctuation amplitudes at each scale
+    """
+    if x.ndim != 1:
+        raise ValueError("Input sequence must be a vector.")
+    
+    elements = len(x)
+    
+    if intervals is None:
+        scales = int(np.log2(elements))
+        if (1 << (scales - 1)) > elements / 2.5:
+            scales -= 1
+        intervals = _calculate_intervals(elements, scales)
+    else:
+        if len(intervals) < 2:
+            raise ValueError("Number of intervals must be greater than one.")
+        if np.any((intervals > elements) | (intervals < 3)):
+            raise ValueError("Invalid interval size: must be between size of sequence x and 3.")
+    
+    y = np.cumsum(x) # get the cumualtive sum of the input time series
+    # perform dfa to get back the flucts at each scale
+    flucts = _dfa(y, intervals)
+    # now fit a straight line to the log-log plot
+    coeffs = np.polyfit(np.log10(intervals), np.log10(flucts), 1)
+    alpha = coeffs[0]
+
+    return alpha
+
+# helper functions
+def _calculate_intervals(elements, scales):
+    # create an array of interval sizes using bitshifting to calculate powers of 2
+    return np.array([int((elements / (1 << scale)) + 0.5) for scale in range(scales - 1, -1, -1)])
+
+def _dfa(x, intervals):
+    # measure the fluctuations at each scale
+    elements = len(x)
+    flucts = np.zeros(len(intervals))
+
+    for scale, interval in enumerate(intervals):
+        # calculate num subdivisions for this interval size
+        subdivs = int(np.ceil(elements / interval))
+        trend = np.zeros(elements)
+
+        for i in range(subdivs):
+            # calculate start and end indices for current subdivision
+            start = i * interval
+            end = start + interval
+            # if last subdivision extends beyond end of the time series
+            if end > elements:
+                trend[start:] = x[start:]
+                break
+            segment = x[start:end]
+            # extract the current segment of the detrended time series and fit a linear trend
+            t = np.arange(interval)
+            coeffs = np.polyfit(t, segment, 1)
+            # store the trend values
+            trend[start:end] = np.polyval(coeffs, t)
+        # compute the root mean square fluctuations for the current interval size, after detrending
+        flucts[scale] = np.sqrt(np.mean((x - trend)**2))
+
+    return flucts

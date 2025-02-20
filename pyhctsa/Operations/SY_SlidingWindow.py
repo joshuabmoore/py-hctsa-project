@@ -1,9 +1,9 @@
 import numpy as np
 import warnings
-from Operations.EN_ApEn import EN_ApEN
-from Operations.EN_SampEn import EN_SampEn
-from Operations.DN_Moments import DN_Moments
-from Operations.CO_AutoCorr import CO_AutoCorr
+from EN import ApEN, SampEn
+from DN import Moments
+from CO import AutoCorr
+
 
 def SY_SlidingWindow(y : list, windowStat : str = 'mean', acrossWinStat : str = 'std', numSeg : int = 5, incMove : int = 2) -> dict:
 
@@ -35,23 +35,23 @@ def SY_SlidingWindow(y : list, windowStat : str = 'mean', acrossWinStat : str = 
         warnings.warn(f"{windowStat} not yet implemented")
     elif windowStat == 'apen':
         for i in range(numSteps):
-            qs[i] = EN_ApEN(y[get_window(i)], 1, 0.2)
+            qs[i] = ApEN(y[get_window(i)], 1, 0.2)
     elif windowStat == 'sampen':
         for i in range(numSteps):
-            sampen_dict = EN_SampEn(y[get_window(i)], 1, 0.1)
+            sampen_dict = SampEn(y[get_window(i)], 1, 0.1)
             qs[i] = sampen_dict['sampen1']
     elif windowStat == 'mom3':
         for i in range(numSteps):
-            qs[i] = DN_Moments(y[get_window(i)], 3)
+            qs[i] = Moments(y[get_window(i)], 3)
     elif windowStat == 'mom4':
         for i in range(numSteps):
-            qs[i] = DN_Moments(y[get_window(i)], 4)
+            qs[i] = Moments(y[get_window(i)], 4)
     elif windowStat == 'mom5':
         for i in range(numSteps):
-            qs[i] = DN_Moments(y[get_window(i)], 5)
+            qs[i] = Moments(y[get_window(i)], 5)
     elif windowStat == 'AC1':
         for i in range(numSteps):
-            qs[i] = CO_AutoCorr(y[get_window(i)], 1, 'Fourier')
+            qs[i] = AutoCorr(y[get_window(i)], 1, 'Fourier')
     elif windowStat == 'lillie':
         warnings.warn(f"{windowStat} not yet implemented")
     else:
@@ -61,9 +61,9 @@ def SY_SlidingWindow(y : list, windowStat : str = 'mean', acrossWinStat : str = 
     if acrossWinStat == 'std':
         out = np.std(qs, ddof=1)/np.std(y, ddof=1)
     elif acrossWinStat == 'apen':
-        out = EN_ApEN(qs, 1, 0.2)
+        out = ApEN(qs, 1, 0.2)
     elif acrossWinStat == 'sampen':
-        sampen_dict = EN_SampEn(qs, 2, 0.15)
+        sampen_dict = SampEn(qs, 2, 0.15)
         out = sampen_dict['quadSampEn1']
     elif acrossWinStat == 'ent':
         warnings.warn(f"{acrossWinStat} not yet implemented")

@@ -1,6 +1,6 @@
 import numpy as np
 
-def MD_rawHRVmeas(x):
+def RawHRVmeas(x : list):
     """
     MD_rawHRVmeas computes Poincare plot measures used in HRV (Heart Rate Variability) analysis.
     

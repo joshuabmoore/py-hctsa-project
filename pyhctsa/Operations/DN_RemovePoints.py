@@ -5,7 +5,7 @@ from Operations.CO_AutoCorr import CO_AutoCorr
 from Operations.CO_FirstCrossing import CO_FirstCrossing
 import warnings
 
-def DN_RemovePoints(y, removeHow = 'absfar', p = 0.1, removeOrSaturate = 'remove'):
+def DN_RemovePoints(y : list , removeHow = 'absfar', p = 0.1, removeOrSaturate = 'remove'):
     """
     DN_RemovePoints: How time-series properties change as points are removed.
 

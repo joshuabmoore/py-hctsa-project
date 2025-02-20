@@ -1,12 +1,12 @@
 import numpy as np
 from scipy import stats
 from scipy.stats import skew, kurtosis
-from PeripheryFunctions.BF_zscore import BF_zscore as zscore
+from pyhctsa.Operations.BF_zscore import BF_zscore as zscore
 from Operations.CO_FirstCrossing import CO_FirstCrossing
 from Operations.CO_AutoCorr import CO_AutoCorr
 
 
-def CO_StickAngles(y):
+def CO_StickAngles(y : list):
     """
     Analysis of the line-of-sight angles between time series data pts. 
 
