@@ -1,6 +1,5 @@
 import numpy as np 
-from Operations.SB_CoarseGrain import SB_CoarseGrain
-from PeripheryFunctions.BF_ResetSeed import BF_ResetSeed
+from SB import CoarseGrain
 import scipy as sc
 import math
 
@@ -56,7 +55,7 @@ def FC_Surprise(y, whatPrior='dist', memory=0.2, numGroups=3, coarseGrainMethod=
         memory = int(np.round(memory*len(y)))
 
     # COURSE GRAIN
-    yth = SB_CoarseGrain(y, coarseGrainMethod, numGroups) # a coarse-grained time series using the numbers 1:numgroups
+    yth = CoarseGrain(y, coarseGrainMethod, numGroups) # a coarse-grained time series using the numbers 1:numgroups
     N = int(len(yth))
 
     #select random samples to test

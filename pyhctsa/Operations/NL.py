@@ -4,6 +4,7 @@ from nolitsa import dimension
 from typing import Union
 from IN import FirstCrossing, FirstMin
 
+
 def FNN(y : list, maxdim : int = 10, tau : Union[str, int] = 1, th : Union[int, float] = 5, kth : Union[int, float] = 1, justBest : Union[bool, int] = 0, bestp : float = 0.1) -> dict:
     """
     False nearest neighbors of a time series.

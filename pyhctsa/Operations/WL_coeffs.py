@@ -1,13 +1,13 @@
 import numpy as np
 import pywt
-from Utils.wrcoef import wavedec, wrcoef, detcoef
+from wrcoef import wavedec, wrcoef, detcoef
 
 def findMyThreshold(x, det_s, N):
-    pr = np.argwhere(det_s < x*np.max(det_s)).flatten()
+    pr = np.argwhere(det_s < x*np.max(det_s))[0] / N
     if len(pr) == 0:
         return np.nan
     else:
-        return pr[0]/N
+        return pr
 
 def WL_coeffs(y : list, wname : str = 'db3', level : int = 3):
     N = len(y)

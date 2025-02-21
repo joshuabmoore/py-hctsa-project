@@ -1000,5 +1000,35 @@ MISC:
       - whatPotential: 'sine'
         params: [[3,0.5,1], [1,1,1], [10,0.04,10]]
         zscore: True
-
-    
+  
+  Walker:
+    labels:
+      - physics
+      - dynamicalSystem
+    dependencies:
+    configs:
+      - walkerRule: 'prop'
+        walkerParams: [0.1, 0.5, 0.9, 1.1]
+        zscore: True
+      - walkerRule: 'biasprop'
+        walkerParams: [[0.5, 0.1], [0.1, 0.5]]
+        zscore: True
+      - walkerRule: 'momentum'
+        walkerParams: [2, 5]
+        zscore: True
+      - walkerRule: 'runningvar'
+        walkerParams: [[1.5, 50]]
+        zscore: True
+  
+  WLCoeffs:
+    labels:
+      - wavelet
+    dependencies:
+      - pywt
+    configs:
+      - wname: 'db3'
+        level: !range [1, 5]
+        zscore: True
+      - wname: 'db3'
+        level: 'max'
+        zscore: True
