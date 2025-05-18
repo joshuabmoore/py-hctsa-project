@@ -2,16 +2,16 @@ import numpy as np
 from numpy import histogram_bin_edges
 from loguru import logger
 from statsmodels.tsa.stattools import pacf
-from BF_PointOfCrossing import BF_PointOfCrossing # replace
-from BF_iszscored import BF_iszscored # replace
-from BF_zscore import BF_zscore # replace
-from BF_SignChange import BF_SignChange
-from BF_MutualInformation import BF_MutualInformation # replace
+from Operations.BF_PointOfCrossing import BF_PointOfCrossing # replace
+from Operations.BF_iszscored import BF_iszscored # replace
+from Operations.BF_zscore import BF_zscore # replace
+from Operations.BF_SignChange import BF_SignChange
+from Operations.BF_MutualInformation import BF_MutualInformation # replace
 from typing import Union
 from scipy.optimize import curve_fit
 from scipy.stats import mode as smode
 from scipy.stats import expon, skew, kurtosis, gaussian_kde
-from binpicker import binpicker
+from Operations.binpicker import binpicker
 
 
 def StickAngles(y : list) -> dict:
@@ -37,7 +37,7 @@ def StickAngles(y : list) -> dict:
     out : dict
         A dictionary containing various statistics on the obtained sequence of angles.
     """
-
+    y = np.array(y)
     # Split the time series into positive and negative parts
     ix = [np.where(y >= 0)[0], np.where(y < 0)[0]]
     n = [len(ix[0]), len(ix[1])]
@@ -75,7 +75,7 @@ def StickAngles(y : list) -> dict:
         ksy2 = kde2(ksx)
         out['pnsumabsdiff'] = np.sum(np.abs(ksy1-ksy2))
     else:
-        out['pnsumabsdiff'] = np.NaN
+        out['pnsumabsdiff'] = np.nan
     
     # how symmetric is the distribution of angles?
     if len(angles[0]) > 0:
@@ -86,8 +86,8 @@ def StickAngles(y : list) -> dict:
         out['symks_p'] = np.sum(np.abs(ksy1[:100] - ksy1[101:][::-1]))
         out['ratmean_p'] = np.mean(angles[0][angles[0] > 0])/np.mean(angles[0][angles[0] < 0])
     else:
-        out['symks_p'] = np.NaN
-        out['ratmean_p'] = np.NaN
+        out['symks_p'] = np.nan
+        out['ratmean_p'] = np.nan
     
     if len(angles[1]) > 0:
         maxdev = np.max(np.abs(angles[1]))
@@ -96,8 +96,8 @@ def StickAngles(y : list) -> dict:
         out['symks_n'] = np.sum(np.abs(ksy2[:100] - ksy2[101:][::-1]))
         out['ratmean_n'] = np.mean(angles[1][angles[1] > 0])/np.mean(angles[1][angles[1] < 0])
     else:
-        out['symks_n'] = np.NaN
-        out['ratmean_n'] = np.NaN
+        out['symks_n'] = np.nan
+        out['ratmean_n'] = np.nan
     
     # z-score
     zangles = []
@@ -118,10 +118,10 @@ def StickAngles(y : list) -> dict:
         # StatAv5
         out['statav5_p_m'], out['statav5_p_s'] = _SUB_statav(zangles[0], 5)
     else:
-        out['statav2_p_m'], out['statav2_p_s'] = np.NaN, np.NaN
-        out['statav3_p_m'], out['statav3_p_s'] = np.NaN, np.NaN
-        out['statav4_p_m'], out['statav4_p_s'] = np.NaN, np.NaN
-        out['statav5_p_m'], out['statav5_p_s'] = np.NaN, np.NaN
+        out['statav2_p_m'], out['statav2_p_s'] = np.nan, np.nan
+        out['statav3_p_m'], out['statav3_p_s'] = np.nan, np.nan
+        out['statav4_p_m'], out['statav4_p_s'] = np.nan, np.nan
+        out['statav5_p_m'], out['statav5_p_s'] = np.nan, np.nan
     
     # there are negative angles
     if len(zangles[1]) > 0:
@@ -134,10 +134,10 @@ def StickAngles(y : list) -> dict:
         # StatAv5
         out['statav5_n_m'], out['statav5_n_s'] = _SUB_statav(zangles[1], 5)
     else:
-        out['statav2_n_m'], out['statav2_n_s'] = np.NaN, np.NaN
-        out['statav3_n_m'], out['statav3_n_s'] = np.NaN, np.NaN
-        out['statav4_n_m'], out['statav4_n_s'] = np.NaN, np.NaN
-        out['statav5_n_m'], out['statav5_n_s'] = np.NaN, np.NaN
+        out['statav2_n_m'], out['statav2_n_s'] = np.nan, np.nan
+        out['statav3_n_m'], out['statav3_n_s'] = np.nan, np.nan
+        out['statav4_n_m'], out['statav4_n_s'] = np.nan, np.nan
+        out['statav5_n_m'], out['statav5_n_s'] = np.nan, np.nan
     
     # All angles
     
@@ -156,9 +156,18 @@ def StickAngles(y : list) -> dict:
         out['ac1_p'] = AutoCorr(zangles[0], 1, 'Fourier')[0]
         out['ac2_p'] = AutoCorr(zangles[0], 2, 'Fourier')[0]
     else:
-        out['tau_p'] = np.NaN
-        out['ac1_p'] = np.NaN
-        out['ac2_p'] = np.NaN
+        out['tau_p'] = np.nan
+        out['ac1_p'] = np.nan
+        out['ac2_p'] = np.nan
+    
+    if len(zangles[1]) > 0:
+        out['tau_n'] = FirstCrossing(zangles[1], 'ac', 0, 'continuous')
+        out['ac1_n'] = AutoCorr(zangles[1], 1, 'Fourier')[0]
+        out['ac2_n'] = AutoCorr(zangles[1], 2, 'Fourier')[0]
+    else:
+        out['tau_n'] = np.nan
+        out['ac1_n'] = np.nan
+        out['ac2_n'] = np.nan
     
     out['tau_all'] = FirstCrossing(zallAngles, 'ac', 0, 'continuous')
     out['ac1_all'] = AutoCorr(zallAngles, 1, 'Fourier')[0]
@@ -177,7 +186,7 @@ def StickAngles(y : list) -> dict:
         out['kurtosis_p'] = kurtosis(angles[0], fisher=False)
     else:
         out['q1_p'], out['q10_p'], out['q90_p'], out['q99_p'], \
-            out['skewness_p'], out['kurtosis_p'] = np.NaN, np.Nan, np.NaN,  np.NaN, np.NaN, np.NaN
+            out['skewness_p'], out['kurtosis_p'] = np.nan, np.Nan, np.nan,  np.nan, np.nan, np.nan
     
     if len(zangles[1]) > 0:
         out['q1_n'] = np.quantile(zangles[1], 0.01, method='hazen')
@@ -188,7 +197,7 @@ def StickAngles(y : list) -> dict:
         out['kurtosis_n'] = kurtosis(angles[1], fisher=False)
     else:
         out['q1_n'], out['q10_n'], out['q90_n'], out['q99_n'], \
-            out['skewness_n'], out['kurtosis_n'] = np.NaN, np.NaN, np.NaN,  np.NaN, np.NaN, np.NaN
+            out['skewness_n'], out['kurtosis_n'] = np.nan, np.nan, np.nan,  np.nan, np.nan, np.nan
     
     F_quantz = lambda x : np.quantile(zallAngles, x, method='hazen')
     out['q1_all'] = F_quantz(0.01)
@@ -204,8 +213,8 @@ def _SUB_statav(x, n):
     # helper function
     NN = len(x)
     if NN < 2 * n: # not long enough
-        statavmean = np.NaN
-        statavstd = np.NaN
+        statavmean = np.nan
+        statavstd = np.nan
     x_buff = _buffer(x, int(np.floor(NN/n)))
     if x_buff.shape[1] > n:
         # remove final pt

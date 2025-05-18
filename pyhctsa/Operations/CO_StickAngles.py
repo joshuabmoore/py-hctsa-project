@@ -148,6 +148,15 @@ def CO_StickAngles(y : list):
         out['ac1_p'] = np.NaN
         out['ac2_p'] = np.NaN
     
+    if len(zangles[1]) > 0:
+        out['tau_n'] = CO_FirstCrossing(zangles[1], 'ac', 0, 'continuous')
+        out['ac1_n'] = CO_AutoCorr(zangles[1], 1, 'Fourier')[0]
+        out['ac2_n'] = CO_AutoCorr(zangles[1], 2, 'Fourier')[0]
+    else:
+        out['tau_n'] = np.NaN
+        out['ac1_n'] = np.NaN
+        out['ac2_n'] = np.NaN
+    
     out['tau_all'] = CO_FirstCrossing(zallAngles, 'ac', 0, 'continuous')
     out['ac1_all'] = CO_AutoCorr(zallAngles, 1, 'Fourier')[0]
     out['ac2_all'] = CO_AutoCorr(zallAngles, 2, 'Fourier')[0]
