@@ -32,6 +32,7 @@ CO:
   FirstCrossing:
     labels:
       - correlation
+      - e1000tested
     dependencies:
     configs:
       - corr_fun: 'ac'
@@ -140,6 +141,7 @@ CO:
     labels:
       - correlation
       - glscf
+      - e1000tested
     dependencies:
     configs:
       - alpha: 1.0
@@ -164,6 +166,7 @@ CO:
       - correlation
       - glscf
       - tau
+      - e1000tested
     dependencies:
     configs:
       - alpha: 1.0

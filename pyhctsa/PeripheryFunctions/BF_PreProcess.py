@@ -1,6 +1,6 @@
 import numpy as np
 from PeripheryFunctions.BF_makeBuffer import BF_MakeBuffer
-from Operations.CO_FirstCrossing import CO_FirstCrossing
+from Operations_OLD.CO_FirstCrossing import CO_FirstCrossing
 
 def BF_PreProcess(y, preProcessHow = None):
     """

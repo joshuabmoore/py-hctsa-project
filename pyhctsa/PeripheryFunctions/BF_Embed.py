@@ -1,6 +1,6 @@
 import numpy as np
-from Operations.CO_FirstMin import CO_FirstMin
-from Operations.CO_FirstCrossing import CO_FirstCrossing
+from Operations_OLD.CO_FirstMin import CO_FirstMin
+from Operations_OLD.CO_FirstCrossing import CO_FirstCrossing
 
 def BF_Embed(y, tau = None, m = None, makeSignal = None, randomSeed = None, beVocal = False):
     """

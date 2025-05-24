@@ -1,0 +1,36 @@
+Medical:
+  HRV_Classic:
+    labels:
+      - medical
+      - discrepancy
+    dependencies:
+    hctsa_name: MD_hrv_classic
+    configs:
+      - zscore: True
+
+  PNN:
+    labels:
+      - medical
+      - raw
+      - spreadDependent
+    dependencies:
+    hctsa_name: MD_pNN
+
+  PolVar:
+    labels:
+      - medical
+      - symbolic
+    dependencies:
+    configs:
+      - d: [1.0, 0.5, 0.1]
+        D: [3, 5, 4, 6]
+        zscore: True
+    hctsa_name: MD_polvar
+
+  RawHRVMeas:
+    labels:
+      - medical 
+      - raw
+      - discrepancy
+    dependencies:
+    hctsa_name: MD_rawHRVmeas
