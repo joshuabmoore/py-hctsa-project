@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Union
 from scipy import signal
+from utilities import binpicker, histc
 
 
 def RawHRVMeas(x: Union[list, np.ndarray]) -> dict:
@@ -46,12 +47,20 @@ def RawHRVMeas(x: Union[list, np.ndarray]) -> dict:
     
     out = {}
 
-    # triangular histogram index
-    hist_counts10, _ = np.histogram(x, 10)
+    # triangular histogram index  
+    # 10 bins  
+    edges10 = binpicker(x.min(), x.max(), 10)
+    hist_counts10 = histc(x, edges10)
     out['tri10'] = N/np.max(hist_counts10)
-    hist_counts20, _ = np.histogram(x, 20)
+
+    # 20 bins
+    edges20 = binpicker(x.min(), x.max(), 20)
+    hist_counts20 = histc(x, edges20)
     out['tri20'] = N/np.max(hist_counts20)
-    hist_counts_sqrt, _ = np.histogram(x, bins=int(np.ceil(np.sqrt(N))))
+
+    # (sqrt samples) bins
+    edges_sqrt = binpicker(x.min(), x.max(), int(np.ceil(np.sqrt(N))))
+    hist_counts_sqrt = histc(x, edges_sqrt)
     out['trisqrt'] = N/np.max(hist_counts_sqrt)
 
     # Poincare plot measures
@@ -108,6 +117,7 @@ def HRV_Classic(y: Union[list, np.ndarray]) -> dict:
     """
 
     # Standard defaults
+    y = np.asarray(y)
     diffy = np.diff(y)
     N = len(y)
 
@@ -187,9 +197,9 @@ def HRV_Classic(y: Union[list, np.ndarray]) -> dict:
     out['hf'] = hfp/total * 100
 
     # Triangular histogram index
-    numBins = 10
-    hist = np.histogram(y, bins=numBins)
-    out['tri'] = len(y)/np.max(hist[0])
+    edges10 = binpicker(y.min(), y.max(), 10)
+    hist = histc(y, edges10)
+    out['tri'] = len(y)/np.max(hist)
 
     # Poincare plot measures:
     # cf. "Do Existing Measures ... ", Brennan et. al. (2001), IEEE Trans Biomed Eng 48(11)
@@ -247,7 +257,7 @@ def PolVar(x : Union[list, np.ndarray], d : float = 1, D : int = 6) -> float:
     p : float
         The probability of obtaining a sequence of D consecutive ones or zeros.
     """
-
+    x = np.asarray(x)
     dx = np.abs(np.diff(x)) # abs diff in consecutive values of the time series
     N = len(dx) # number of diffs in the input time series
 
@@ -314,7 +324,7 @@ def PNN(x : Union[list, np.ndarray]) -> dict:
             (Additional thresholds may be included depending on implementation)
 
     """
-
+    x = np.asarray(x)
     diffx = np.diff(x)
     N = len(x)
 

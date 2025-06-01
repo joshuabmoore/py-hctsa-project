@@ -1,0 +1,13 @@
+Nonlinear:
+  FNN:
+    labels:
+      - nonlinear
+      - fnn
+    dependencies:
+    configs:
+      - tau: 1
+        th: 5.0
+        kth: 1
+        zscore: True
+    hctsa_name: NL_MS_fnn
+    ordered_args: ['tau', 'th', 'kth']

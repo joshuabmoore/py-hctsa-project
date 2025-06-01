@@ -1,0 +1,95 @@
+Entropy: 
+  PermEn:
+    labels:
+      - entropy
+    dependencies: 
+      - antropy
+    configs:
+      - m: [2, 3, 4, 5]
+        tau: 1
+        zscore: True
+      - m: [2, 3, 4, 5]
+        tau: 2
+        zscore: True
+    hctsa_name: EN_PermEn
+    ordered_args: ['m', 'tau']
+
+  # RPDE:
+  #   labels:
+  #     - entropy
+  #   dependencies:
+  #   configs:
+  #     - m: 3
+  #       tau: 1
+  #       zscore: True
+  #   hctsa_name: EN_rpde
+  #   ordered_args: ['m', 'tau']
+        
+  # ApproximateEntropy:
+  #   labels:
+  #     - entropy
+  #   dependencies:
+  #   configs:
+  #     - mnom: [1, 2]
+  #       rth: [0.1, 0.2]
+  #       zscore: True
+  #   hctsa_name: EN_ApEn
+  #   ordered_args: ['mnom', 'rth']
+  
+  # ComplexityInvariantDistance:
+  #   labels:
+  #     - entropy
+  #   dependencies:
+  #   configs:
+  #     - zscore: True
+  #   hctsa_name: EN_CID
+
+  # LZComplexity:
+  #   labels:
+  #     - entropy
+  #     - intensive
+  #   dependencies:
+  #   configs:
+  #     - nbits: !range [2, 10]
+  #       preProc: [[], 'diff']
+  #       zscore: True
+  #   hctsa_name: EN_MS_LZcomplexity
+  #   ordered_args: ['nbits', 'preProc']
+
+  # SampleEntropy:
+  #   labels:
+  #     - entropy
+  #     - intensive
+  #   dependencies:
+  #     - numba
+  #   configs:
+  #     - M: 5
+  #       r: [0.05, 0.1, 0.15, 0.2, 0.3]
+  #       zscore: True
+  #       preProcessHow: 
+  #     - M: 5
+  #       r: [0.1, 0.2]
+  #       preProcessHow: 'diff1'
+  #       zscore: True
+  #   hctsa_name: EN_SampEn
+  #   ordered_args: ['M', 'r', 'preProcessHow']
+
+  # MultiScaleEntropy:
+  #   labels:
+  #     - entropy
+  #     - intensive
+  #   dependencies:
+  #   configs:
+  #     - scaleRange: [!range [1, 11]]
+  #       m: 2
+  #       r: 0.15
+  #       preProcessHow: ['diff1']
+  #       zscore: True
+  #     - scaleRange: [!range [1, 11]]
+  #       m: 2
+  #       r: 0.15
+  #       zscore: True
+  #       preProcessHow:
+  #   hctsa_name: EN_mse
+  #   ordered_args: ['scaleRange', 'm', 'r', 'preProcessHow']
+

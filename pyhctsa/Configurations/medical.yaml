@@ -26,6 +26,7 @@ Medical:
         D: [3, 5, 4, 6]
         zscore: True
     hctsa_name: MD_polvar
+    ordered_args: ['d', 'D']
 
   RawHRVMeas:
     labels:
