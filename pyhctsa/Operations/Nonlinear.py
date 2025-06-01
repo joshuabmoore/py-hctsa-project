@@ -4,6 +4,7 @@ from numpy.typing import ArrayLike
 from typing import Iterable, Tuple, Union, Optional, List
 from numba import njit, prange
 from Correlation import FirstCrossing
+from Information import FirstMin
 
 
 def FNN(y: Union[list, np.ndarray], 
@@ -75,7 +76,7 @@ def FNN(y: Union[list, np.ndarray],
     if tau == 'ac':
         tau = FirstCrossing(y, 'ac', 0, 'discrete')
     elif tau == 'mi':
-        raise NotImplementedError("Mutual information lag selection not implemented.")
+        tau = FirstMin(y, 'mi')
     elif not isinstance(tau, int) or tau < 1:
         raise ValueError("tau must be a positive integer or 'ac'/'mi'.")
     

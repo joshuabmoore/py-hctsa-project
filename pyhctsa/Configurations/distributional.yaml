@@ -1,0 +1,111 @@
+Distributional:
+  # Burstiness:
+  #   labels:
+  #     - distribution
+  #     - raw
+  #     - locationDependent
+  #     - spreadDependent
+  #   dependencies:
+  #   configs:
+  #   hctsa_name: DN_Burstiness
+  #   ordered_args: 
+
+  # CustomSkewness:
+  #   labels: 
+  #     - distribution
+  #     - moment
+  #     - shape
+  #     - raw
+  #     - locationDependent
+  #   dependencies:
+  #   configs:
+  #     - whatSkew: ['pearson']
+  #     - whatSkew: ['bowley']
+  #       zscore: True
+  #   hctsa_name: DN_CustomSkewness
+  #   ordered_args: ["whatSkew"]
+  
+  # CV:
+  #   labels:
+  #     - distribution
+  #     - spread
+  #     - cv
+  #     - raw
+  #     - locationDependent
+  #     - spreadDependent
+  #   dependencies:
+  #   configs:
+  #     - k: [1, 2]
+  #       zscore: False
+  #   hctsa_name: DN_cv
+  #   ordered_args: ["k"]
+
+  # FitMLE:
+  #   labels:
+  #     - distribution
+  #     - raw
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - fitWhat: ['geometric']
+  #       zscore: False
+  #   hctsa_name: DN_Fit_mle
+  #   ordered_args: ["fitWhat"]
+
+  # HighLowMu:
+  #   labels:
+  #     - distribution
+  #     - raw
+  #     - locationDependent
+  #     - spreadDependent
+  #   dependencies:
+  #   configs:
+  #   hctsa_name: DN_HighLowMu
+  #   ordered_args:
+
+  # HistogramAsymmetry:
+  #   labels:
+  #     - distribution
+  #     - discrepancy
+  #   dependencies:
+  #   configs:
+  #     - numBins: 11
+  #       doSimple: False
+  #       zscore: True
+  #   hctsa_name: DN_HistogramAsymmetry
+  #   ordered_args: ["numBins", "doSimple"]
+
+  # HistogramMode:
+  #   labels:
+  #     - distribution
+  #   dependencies:
+  #   configs:
+  #     - numBins: [5, 10, 21]
+  #       doSimple: True
+  #       doAbs: [False, True]
+  #       zscore: True
+  #   hctsa_name: DN_HistogramMode
+  #   ordered_args: ["numBins", "doSimple", "doAbs"]
+
+  # Mean:
+  #   labels:
+  #     - distribution
+  #     - location
+  #     - raw
+  #     - locationDependent
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - meanType: ['norm', 'harm', 'rms', 'median', 'midhinge']
+  #   hctsa_name: DN_Mean
+  #   ordered_args: ["meanType"]
+
+  MinMax:
+    labels:
+      - distribution
+    dependencies:
+    configs:
+      - minOrMax: ['max', 'min']
+        zscore: True
+    hctsa_name: DN_MinMax
+    ordered_args: ["minOrMax"]

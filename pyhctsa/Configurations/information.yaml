@@ -1,0 +1,56 @@
+Information:
+  # AutoMutualInfoStats:
+  #     labels:
+  #       - information
+  #       - correlation
+  #       - AMI
+  #     dependencies:
+  #       - jpype
+  #       - JIDT
+  #     configs:
+  #       - maxTau: [40, 20]
+  #         estMethod: 'gaussian'
+  #         extraParam:
+  #         zscore: True
+  #       - maxTau: [40, 20]
+  #         estMethod: 'kraskov1'
+  #         extraParam: '4'
+  #         zscore: True
+  #     hctsa_name: IN_AutoMutualInfoStats
+  #     ordered_args: ["maxTau", "estMethod", "extraParam"]
+
+  # FirstMin:
+  #   labels:
+  #     - correlation
+  #     - AMI
+  #   dependencies:
+  #     - JIDT
+  #   configs:
+  #     # - minWhat: ['ac', 'mi-gaussian']
+  #     #   extraParam: ['']
+  #     #   minNotMax: ['']
+  #     #   zscore: True
+  #     - minWhat: ['mi-kraskov1', 'mi-kraskov2']
+  #       extraParam: '4'
+  #       minNotMax: ['']
+  #       zscore: True
+  #     # - minWhat: 'mi-hist'
+  #     #   extraParam: [5, 10]
+  #     #   minNotMax: ['']
+  #     #   zscore: True
+  #     # - minWhat: ['ac', 'mi-gaussian']
+  #     #   extraParam: ['']
+  #     #   minNotMax: False
+  #     #   zscore: True
+  #     # - minWhat: ['mi-kraskov1', 'mi-kraskov2']
+  #     #   extraParam: '4'
+  #     #   minNotMax: False
+  #     #   zscore: True
+  #     # - minWhat: 'mi-hist'
+  #     #   extraParam: [5, 10]
+  #     #   minNotMax: False
+  #     #   zscore: True
+  #   hctsa_name: CO_FirstMin
+  #   ordered_args: ["minWhat", "extraParam", "minNotMax"]
+
+
