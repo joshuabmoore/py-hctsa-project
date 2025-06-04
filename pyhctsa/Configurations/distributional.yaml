@@ -1,104 +1,104 @@
 Distributional:
-  # Burstiness:
-  #   labels:
-  #     - distribution
-  #     - raw
-  #     - locationDependent
-  #     - spreadDependent
-  #   dependencies:
-  #   configs:
-  #   hctsa_name: DN_Burstiness
-  #   ordered_args: 
+  Burstiness:
+    labels:
+      - distribution
+      - raw
+      - locationDependent
+      - spreadDependent
+    dependencies:
+    configs:
+    hctsa_name: DN_Burstiness
+    ordered_args: 
 
-  # CustomSkewness:
-  #   labels: 
-  #     - distribution
-  #     - moment
-  #     - shape
-  #     - raw
-  #     - locationDependent
-  #   dependencies:
-  #   configs:
-  #     - whatSkew: ['pearson']
-  #     - whatSkew: ['bowley']
-  #       zscore: True
-  #   hctsa_name: DN_CustomSkewness
-  #   ordered_args: ["whatSkew"]
+  CustomSkewness:
+    labels: 
+      - distribution
+      - moment
+      - shape
+      - raw
+      - locationDependent
+    dependencies:
+    configs:
+      - whatSkew: ['pearson']
+      - whatSkew: ['bowley']
+        zscore: True
+    hctsa_name: DN_CustomSkewness
+    ordered_args: ["whatSkew"]
   
-  # CV:
-  #   labels:
-  #     - distribution
-  #     - spread
-  #     - cv
-  #     - raw
-  #     - locationDependent
-  #     - spreadDependent
-  #   dependencies:
-  #   configs:
-  #     - k: [1, 2]
-  #       zscore: False
-  #   hctsa_name: DN_cv
-  #   ordered_args: ["k"]
+  CV:
+    labels:
+      - distribution
+      - spread
+      - cv
+      - raw
+      - locationDependent
+      - spreadDependent
+    dependencies:
+    configs:
+      - k: [1, 2]
+        zscore: False
+    hctsa_name: DN_cv
+    ordered_args: ["k"]
 
-  # FitMLE:
-  #   labels:
-  #     - distribution
-  #     - raw
-  #   dependencies:
-  #     - scipy
-  #   configs:
-  #     - fitWhat: ['geometric']
-  #       zscore: False
-  #   hctsa_name: DN_Fit_mle
-  #   ordered_args: ["fitWhat"]
+  FitMLE:
+    labels:
+      - distribution
+      - raw
+    dependencies:
+      - scipy
+    configs:
+      - fitWhat: ['geometric']
+        zscore: False
+    hctsa_name: DN_Fit_mle
+    ordered_args: ["fitWhat"]
 
-  # HighLowMu:
-  #   labels:
-  #     - distribution
-  #     - raw
-  #     - locationDependent
-  #     - spreadDependent
-  #   dependencies:
-  #   configs:
-  #   hctsa_name: DN_HighLowMu
-  #   ordered_args:
+  HighLowMu:
+    labels:
+      - distribution
+      - raw
+      - locationDependent
+      - spreadDependent
+    dependencies:
+    configs:
+    hctsa_name: DN_HighLowMu
+    ordered_args:
 
-  # HistogramAsymmetry:
-  #   labels:
-  #     - distribution
-  #     - discrepancy
-  #   dependencies:
-  #   configs:
-  #     - numBins: 11
-  #       doSimple: False
-  #       zscore: True
-  #   hctsa_name: DN_HistogramAsymmetry
-  #   ordered_args: ["numBins", "doSimple"]
+  HistogramAsymmetry:
+    labels:
+      - distribution
+      - discrepancy
+    dependencies:
+    configs:
+      - numBins: 11
+        doSimple: False
+        zscore: True
+    hctsa_name: DN_HistogramAsymmetry
+    ordered_args: ["numBins", "doSimple"]
 
-  # HistogramMode:
-  #   labels:
-  #     - distribution
-  #   dependencies:
-  #   configs:
-  #     - numBins: [5, 10, 21]
-  #       doSimple: True
-  #       doAbs: [False, True]
-  #       zscore: True
-  #   hctsa_name: DN_HistogramMode
-  #   ordered_args: ["numBins", "doSimple", "doAbs"]
+  HistogramMode:
+    labels:
+      - distribution
+    dependencies:
+    configs:
+      - numBins: [5, 10, 21]
+        doSimple: True
+        doAbs: [False, True]
+        zscore: True
+    hctsa_name: DN_HistogramMode
+    ordered_args: ["numBins", "doSimple", "doAbs"]
 
-  # Mean:
-  #   labels:
-  #     - distribution
-  #     - location
-  #     - raw
-  #     - locationDependent
-  #   dependencies:
-  #     - scipy
-  #   configs:
-  #     - meanType: ['norm', 'harm', 'rms', 'median', 'midhinge']
-  #   hctsa_name: DN_Mean
-  #   ordered_args: ["meanType"]
+  Mean:
+    labels:
+      - distribution
+      - location
+      - raw
+      - locationDependent
+    dependencies:
+      - scipy
+    configs:
+      - meanType: ['norm', 'harm', 'rms', 'median', 'midhinge']
+    hctsa_name: DN_Mean
+    ordered_args: ["meanType"]
 
   MinMax:
     labels:
@@ -109,3 +109,122 @@ Distributional:
         zscore: True
     hctsa_name: DN_MinMax
     ordered_args: ["minOrMax"]
+
+  Moments:
+    labels:
+      - distribution
+      - moment
+      - shape
+    dependencies:
+      - scipy
+    configs:
+      - theMom: [3, 4, 5, 6, 7, 8, 9, 10, 11]
+        zscore: True
+      - theMom: [3, 4, 5, 6, 7, 8, 9, 10, 11]
+        zscore: False
+    hctsa_name: DN_Moments
+    ordered_args: ["theMom"]
+
+  PLeft:
+    labels:
+      - distribution
+      - spread
+    dependencies:
+    configs:
+      - th : [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+        zscore: True
+    hctsa_name: DN_pleft
+    ordered_args: ["th"]
+
+  ProportionValues:
+    labels:
+      - distribution
+      - raw
+    dependencies:
+    configs:
+      - propWhat: ['zeros', 'positive', 'geq0']
+        zscore: False
+    hctsa_name: DN_ProportionValues
+    ordered_args: ["propWhat"]
+
+  Quantile:
+    labels:
+      - distribution
+    dependencies:
+    configs:
+      - p: [0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99]
+        zscore: True
+    hctsa_name: DN_Quantile
+    ordered_args: ["p"]
+
+  # RemovePoints:
+  #   labels:
+  #     - correlation
+  #     - outliers
+  #     - distribution
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - removeHow: 'absclose'
+  #       p: [0.1, 0.5, 0.8]
+  #       removeOrSaturate: 'remove'
+  #       zscore: True
+  #     - removeHow: 'absfar'
+  #       p: [0.1, 0.8]
+  #       removeOrSaturate: ['remove', 'saturate']
+  #       zscore: True
+  #     - removeHow: 'min'
+  #       p: [0.1, 0.5, 0.8]
+  #       removeOrSaturate: 'saturate'
+  #       zscore: True
+  #     - removeHow: 'max'
+  #       p: [0.1, 0.8]
+  #       removeOrSaturate: 'saturate'
+  #       zscore: True
+  #   hctsa_name: DN_RemovePoints
+  #   ordered_args: ["removeHow", "p", "removeOrSaturate"]
+
+  Spread:
+    labels:
+      - raw
+      - spread
+      - distribution
+      - spreadDependent
+    dependencies:
+      - scipy
+    configs:
+      - spreadMeasure: ['std', 'mad', 'iqr', 'mead']
+    hctsa_name: DN_Spread
+    ordered_args: ["spreadMeasure"]
+
+  TrimmedMean:
+    labels:
+      - distribution
+      - location
+      - raw
+      - locationDependent
+    dependencies:
+    configs:
+      - p_exclude: [1, 5, 10, 25, 50]
+    hctsa_name: DN_TrimmedMean
+    ordered_args: ["p_exclude"]
+
+  Unique:
+    labels:
+      - distribution
+      - raw
+    dependencies:
+    hctsa_name: DN_Unique
+    ordered_args:
+  
+  Withinp:
+    labels:
+      - distribution
+      - spread
+    dependencies:
+    configs:
+      - p: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+        meanOrMedian: ['mean', 'median']
+        zscore: True
+    hctsa_name: DN_Withinp
+    ordered_args: ["p", "meanOrMedian"]

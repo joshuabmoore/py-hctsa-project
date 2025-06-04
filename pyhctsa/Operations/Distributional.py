@@ -3,23 +3,369 @@ from numpy.typing import ArrayLike
 from typing import Dict, Union
 from scipy import stats
 import warnings
+from loguru import logger
 from utilities import simple_binner, binpicker, histc
+from Correlation import AutoCorr, FirstCrossing
 
-def Moments(y : list, theMom : int = 0) -> float:
+def Withinp(x : ArrayLike, p : float = 1.0, meanOrMedian : str = 'mean') -> float:
+    """
+    Proportion of data points within p standard deviations of the mean or median.
+
+    Parameters:
+    -----------
+    x (array-like): The input data vector
+    p (float): The number (proportion) of standard deviations
+    meanOrMedian (str): Whether to use units of 'mean' and standard deviation,
+                          or 'median' and rescaled interquartile range
+
+    Returns:
+    --------
+    float: The proportion of data points within p standard deviations
+
+    Raises:
+    ValueError: If mean_or_median is not 'mean' or 'median'
+    """
+    x = np.asarray(x)
+    N = len(x)
+
+    if meanOrMedian == 'mean':
+        mu = np.mean(x)
+        sig = np.std(x, ddof=1)
+    elif meanOrMedian == 'median':
+        mu = np.median(x)
+        iqr_val = np.percentile(x, 75, method='hazen') - np.percentile(x, 25, method='hazen')
+        sig = 1.35 * iqr_val
+    else:
+        raise ValueError(f"Unknown setting: '{meanOrMedian}'")
+
+    # The withinp statistic:
+    return np.divide(np.sum((x >= mu - p * sig) & (x <= mu + p * sig)), N)
+
+def Unique(y : ArrayLike) -> float:
+    """
+    The proportion of the time series that are unique values.
+
+    Parameters
+    ----------
+    y : array-like
+        The input time series or data vector
+
+    Returns
+    -------
+    float
+        the proportion of time series that are unique values
+    """
+    x = np.asarray(y)
+    return np.divide(len(np.unique(y)), len(y))
+
+def TrimmedMean(y : ArrayLike, p_exclude : float = 0.0) -> float:
+    """
+    Mean of the trimmed time series.
+
+    Returns the mean of the time series after removing a specified percentage of 
+    the highest and lowest values. This is part of the Distributional operations 
+    from hctsa, implementing DN_TrimmedMean.
+
+    Parameters
+    ----------
+    y : array-like
+        The input time series or data vector
+    p_exclude : float, optional
+        The percentage of highest and lowest values to exclude from the mean 
+        calculation (default is 0.0, which gives the standard mean)
+
+    Returns
+    -------
+    float
+        The mean of the trimmed time series
+    """
+    y = np.asarray(y)
+    p_exclude *= 0.01
+    N = len(y)
+    trim = int(np.round(N * p_exclude / 2))
+    y = np.sort(y)
+
+    out = np.mean(y[trim:N-trim])
+
+    return out
+
+def Spread(y : ArrayLike, spreadMeasure : str = 'std') -> float:
+    """
+    Measure of spread of the input time series.
+
+    Returns the spread of the raw data vector using different statistical measures.
+    This is part of the Distributional operations from hctsa, implementing DN_Spread.
+
+    Parameters
+    ----------
+    y : array-like
+        The input time series or data vector
+    spreadMeasure : str, optional
+        The spread measure to use (default is 'std'):
+        - 'std': standard deviation
+        - 'iqr': interquartile range 
+        - 'mad': mean absolute deviation
+        - 'mead': median absolute deviation
+
+    Returns
+    -------
+    float
+        The calculated spread measure
+    """
+    y = np.asarray(y)
+    if spreadMeasure == 'std':
+        out = np.std(y, ddof=1)
+    elif spreadMeasure == 'iqr':
+        # midpoint interpolation to match MATLAB implementation of IQR 
+        out = stats.iqr(y, interpolation='midpoint')
+    elif spreadMeasure == 'mad':
+        # mean absolute deviation
+        out = np.mean(np.absolute(y - np.mean(y, None)), None)
+    elif spreadMeasure == 'mead':
+        # median absolute deviation
+        out = np.median(np.absolute(y - np.median(y, None)), None)
+    else:
+        raise ValueError('spreadMeasure must be one of std, iqr, mad or mead')
+    return out
+
+# def RemovePoints(y : ArrayLike, removeHow : str = 'absfar', p : float = 0.1, removeOrSaturate : str = 'remove') -> dict:
+#     """
+#     DN_RemovePoints: How time-series properties change as points are removed.
+
+#     A proportion, p, of points are removed from the time series according to some
+#     rule, and a set of statistics are computed before and after the change.
+
+#     Parameters:
+#     y (array-like): The input time series
+#     removeHow (str): How to remove points from the time series:
+#                       'absclose': those that are the closest to the mean,
+#                       'absfar': those that are the furthest from the mean,
+#                       'min': the lowest values,
+#                       'max': the highest values,
+#                       'random': at random.
+#     p (float): The proportion of points to remove (default: 0.1)
+#     removeOrSaturate (str): To remove points ('remove') or saturate their values ('saturate')
+
+#     Returns:
+#     dict: Statistics including the change in autocorrelation, time scales, mean, spread, and skewness.
+#     """
+#     y = np.asarray(y)
+#     N = len(y)
+    
+#     if removeHow == 'absclose':
+#         is_ = np.argsort(np.abs(y))[::-1]
+#     elif removeHow == 'absfar':
+#         is_ = np.argsort(np.abs(y))
+#     elif removeHow == 'min':
+#         is_ = np.argsort(y)[::-1]
+#     elif removeHow == 'max':
+#         is_ = np.argsort(y)
+#     elif removeHow == 'random':
+#         is_ = np.random.permutation(N)
+#     else:
+#         raise ValueError(f"Unknown method '{removeHow}'")
+    
+#     # Indices of points to *keep*:
+#     rKeep = np.sort(is_[:round(N * (1 - p))])
+
+#     # Indices of points to *transform*:
+#     rTransform = np.setdiff1d(np.arange(N), rKeep)
+
+#     # Do the removing/saturating to convert y -> yTransform
+#     if removeOrSaturate == 'remove':
+#         yTransform = y[rKeep]
+#     elif removeOrSaturate == 'saturate':
+#         # Saturate out the targeted points
+#         if removeHow == 'max':
+#             yTransform = y.copy()
+#             yTransform[rTransform] = np.max(y[rKeep])
+#         elif removeHow == 'min':
+#             yTransform = y.copy()
+#             yTransform[rTransform] = np.min(y[rKeep])
+#         elif removeHow == 'absfar':
+#             yTransform = y.copy()
+#             yTransform[yTransform > np.max(y[rKeep])] = np.max(y[rKeep])
+#             yTransform[yTransform < np.min(y[rKeep])] = np.min(y[rKeep])
+#         else:
+#             raise ValueError(f"Cannot 'saturate' when using '{removeHow}' method")
+#     else:
+#         raise ValueError(f"Unknown removOrSaturate option '{removeOrSaturate}'")
+    
+#     # Compute some autocorrelation properties
+#     #print(yTransform)
+#     n = 8
+#     acf_y = AutoCorr(y, list(range(1, n+1)), 'Fourier')
+#     #print(acf_y)
+#     acf_yTransform = AutoCorr(yTransform, list(range(1, n+1)), 'Fourier')
+#     #print(yTransform)
+#     # Compute output statistics
+#     out = {}
+
+#     # Helper functions
+#     f_absDiff = lambda x1, x2: np.abs(x1 - x2) # ignores the sign
+#     f_ratio = lambda x1, x2: np.divide(x1, x2) # includes the sign
+
+#     #print(FirstCrossing(yTransform, 'ac', 0, 'continuous'))
+#     out['fzcacrat'] = f_ratio(FirstCrossing(yTransform, 'ac', 0, 'continuous'), 
+#                               FirstCrossing(y, 'ac', 0, 'continuous'))
+    
+#     out['ac1rat'] = f_ratio(acf_yTransform[0], acf_y[0])
+#     out['ac1diff'] = f_absDiff(acf_yTransform[0], acf_y[0])
+
+#     out['ac2rat'] = f_ratio(acf_yTransform[1], acf_y[1])
+#     out['ac2diff'] = f_absDiff(acf_yTransform[1], acf_y[1])
+    
+#     out['ac3rat'] = f_ratio(acf_yTransform[2], acf_y[2])
+#     out['ac3diff'] = f_absDiff(acf_yTransform[2], acf_y[2])
+    
+#     out['sumabsacfdiff'] = np.sum(np.abs(acf_yTransform - acf_y))
+#     out['mean'] = np.mean(yTransform)
+#     out['median'] = np.median(yTransform)
+#     out['std'] = np.std(yTransform, ddof=1)
+    
+#     out['skewnessrat'] = stats.skew(yTransform) / stats.skew(y)
+#     # return kurtosis instead of excess kurtosis
+#     out['kurtosisrat'] = stats.kurtosis(yTransform, fisher=False) / stats.kurtosis(y, fisher=False)
+
+#     return out
+
+def Quantile(y : ArrayLike, p : float = 0.5) -> float:
+    """ 
+    Calculates the quantile value at a specified proportion, p.
+
+    Parameters:
+    y (array-like): The input data vector
+    p (float): The quantile proportion (default is 0.5, which is the median)
+
+    Returns:
+    float: The calculated quantile value
+
+    Raises:
+    ValueError: If p is not a number between 0 and 1
+    """
+    y = np.asarray(y)
+    if p == 0.5:
+        logger.info("Using quantile p = 0.5 (median) by default")
+    
+    if not isinstance(p, (int, float)) or p < 0 or p > 1:
+        raise ValueError("p must specify a proportion, in (0,1)")
+    
+    return float(np.quantile(y, p, method = 'hazen'))
+
+def ProportionValues(x : ArrayLike, propWhat : str = 'positive') -> float:
+    """
+    Calculate the proportion of values meeting specific conditions in a time series.
+
+    Parameters
+    ----------
+    x : array-like
+        Input time series or data vector
+    propWhat : str, optional (default is 'positive')
+        Type of values to count:
+        - 'zeros': values equal to zero
+        - 'positive': values strictly greater than zero
+        - 'geq0': values greater than or equal to zero
+
+    Returns
+    -------
+    float
+        Proportion of values meeting the specified condition.
+    """
+    x = np.asarray(x)
+    N = len(x)
+
+    if propWhat == 'zeros':
+        # returns the proportion of zeros in the input vector
+        out = sum(x == 0) / N
+    elif propWhat == 'positive':
+        out = sum(x > 0) / N
+    elif propWhat == 'geq0':
+        out = sum(x >= 0) / N
+    else:
+        raise ValueError(f"Unknown condition to measure: {propWhat}")
+
+    return out
+
+def PLeft(y : ArrayLike, th : float = 0.1) -> float:
+    """
+    Distance from the mean at which a given proportion of data are more distant.
+    
+    Measures the maximum distance from the mean at which a given fixed proportion, `th`, of the time-series data points are further.
+    Normalizes by the standard deviation of the time series.
+    
+    Parameters
+    ----------
+    y : array_like
+        The input data vector.
+    th : float, optional
+        The proportion of data further than `th` from the mean (default is 0.1).
+    
+    Returns
+    -------
+    float
+        The distance from the mean normalized by the standard deviation.
+    """
+    y = np.asarray(y)
+    p = np.quantile(np.abs(y - np.mean(y)), 1-th, method='hazen')
+    # A proportion, th, of the data lie further than p from the mean
+    out = np.divide(p, np.std(y, ddof=1))
+    return float(out)
+
+def NLLNorm(y : ArrayLike) -> float:
+    """
+    Calculate the negative log-likelihood of data following a Gaussian distribution.
+
+    This function fits a Gaussian distribution to the data using maximum likelihood
+    estimation (MLE) and returns the average negative log-likelihood per data point.
+    A lower value indicates the data is more likely to come from a Gaussian distribution.
+
+    Calculated as:
+        -log(L)/n = 1/2*log(2π) + log(σ) + (x - μ)²/(2σ²)
+        where μ is the sample mean and σ is the sample standard deviation
+
+    Parameters
+    ----------
+    y : array-like
+        Input time series or data vector
+
+    Returns
+    -------
+    float
+        Average negative log-likelihood (NLL) per data point.
+    """
+    # Convert input to numpy array
+    y = np.asarray(y)
+
+    # Fit a Gaussian distribution to the data (mimicking MATLAB's normfit)
+    mu = np.mean(y)
+    sigma = np.std(y, ddof=1)  # ddof=1 for sample standard deviation
+
+    # Compute the negative log-likelihood (mimicking MATLAB's normlike)
+    n = len(y)
+    nlogL = (n/2) * np.log(2*np.pi) + n*np.log(sigma) + np.sum((y - mu)**2) / (2*sigma**2)
+
+    # Return the average negative log-likelihood
+    return nlogL / n
+
+def Moments(y : ArrayLike, theMom : int = 0) -> float:
     """
     A moment of the distribution of the input time series.
     Normalizes by the standard deviation.
 
-    Parameters:
-    y (array-like): the input data vector
-    theMom (int): the moment to calculate (a scalar)
+    Parameters
+    ----------
+    y : array-like
+        Input time series or data vector
+    theMom: int, optional
+        The moment to calculate. Default is 0.
 
-    Returns:
-    out (float): theMom moment of the distribution of the input time series. 
+    Returns
+    -------
+    float
+        The calculated moment.
     """
-    out = moment(y, theMom) / np.std(y, ddof=1) # normalized
-
-    return out
+    y = np.asarray(y)
+    return stats.moment(y, theMom) / np.std(y, ddof=1)
 
 def MinMax(y : ArrayLike, minOrMax : str = 'max') -> float:
     """
@@ -29,6 +375,10 @@ def MinMax(y : ArrayLike, minOrMax : str = 'max') -> float:
     ----------
     y : array-like
         Input time series or data vector
+    minOrMax : str, optional
+        Return either the minimum or maximum of y. Default is 'max':
+        - 'min': minimum of y
+        - 'max': maximum of y
 
     Returns
     -------
@@ -214,7 +564,7 @@ def HighLowMu(y: ArrayLike) -> float:
 
 def FitMLE(y : ArrayLike, fitWhat : str = 'gaussian') -> Union[Dict[str, float], float]:
     """
-   Maximum likelihood distribution fit to data.
+    Maximum likelihood distribution fit to data.
 
     Fits a specified probability distribution to the data using maximum likelihood 
     estimation (MLE) and returns the fitted parameters.
@@ -402,4 +752,3 @@ def Burstiness(y: ArrayLike) -> Dict[str, float]:
     out = {'B': B, 'B_Kim': B_Kim}
 
     return out
-

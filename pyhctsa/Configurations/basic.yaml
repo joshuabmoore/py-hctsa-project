@@ -694,7 +694,7 @@ ST:
       - stationarity
     dependencies:
     configs:
-      - k: !range [1, 4]
+      - k: [1, 2, 3, 4]
         zscore: True
   TSLength:
     labels:

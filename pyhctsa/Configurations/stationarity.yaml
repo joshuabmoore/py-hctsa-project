@@ -1,0 +1,63 @@
+Stationarity:
+  # LocalExtrema:
+  #     labels:
+  #       - stationarity
+  #       - distribution
+  #     dependencies:
+  #     configs:
+  #       - howToWindow: 'l'
+  #         n: [50, 100]
+  #         zscore: True
+  #       - howToWindow: 'n'
+  #         n: [25, 50, 100]
+  #         zscore: True
+  #     hctsa_name: ST_LocalExtrema
+  #     ordered_args: ["howToWindow", "n"]
+
+  # SimpleStats:
+  #   labels:
+  #     - noisiness
+  #     - statistics
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - whatStat: ['zcross', 'pmcross']
+  #       zscore: True
+  #   hctsa_name: ST_SimpleStats
+  #   ordered_args: ["whatStat"]
+
+  # MomentCorr:
+  #   labels:
+  #     - statistics
+  #   dependencies:
+  #   configs:
+  #     - windowLength: 0.02
+  #       wOverlap: 0.2
+  #       mom1: ['mean', 'median']
+  #       mom2: ['std', 'iqr']
+  #       whatTransform: ['none', 'abs', 'sqrt']
+  #       zscore: True
+  #   hctsa_name: ST_MomentCorr
+  #   ordered_args: ["windowLength", "wOverlap", "mom1", "mom2", "whatTransform"]
+
+  # TSLength:
+  #   labels:
+  #     - misc
+  #     - raw
+  #     - stationarity
+  #     - lengthDependent
+  #   dependencies:
+  #   configs:
+  #   hctsa_name: ST_Length
+  #   ordered_args:
+
+  FitPolynomial:
+    labels:
+      - trend
+      - stationarity
+    dependencies:
+    configs:
+      - k: !range [1, 4]
+        zscore: True
+    hctsa_name: ST_FitPolynomial
+    ordered_args: ["k"]
