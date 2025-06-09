@@ -1,0 +1,182 @@
+Correlation:
+  # AutoCorrShape:
+  #   labels:
+  #     - correlation
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - stopWhen: ['drown', 'posDrown']
+  #       zscore: True
+  #   hctsa_name: CO_AutoCorrShape
+  #   ordered_args: ["stopWhen"]
+
+  # PartialAutoCorr:
+  #   labels:
+  #     - correlation
+  #   dependencies:
+  #   configs:
+  #     - maxTau: 20
+  #       whatMethod: 'ols'
+  #       zscore: True
+  #   hctsa_name: CO_PartialAutoCorr
+  #   ordered_args: ["maxTau", "whatMethod"]
+  
+  # HistogramAMI:
+  #   labels:
+  #     - information
+  #     - correlation
+  #     - AMI
+  #   dependencies:
+  #   configs:
+  #     - tau: [[1, 2, 3, 4, 5]]
+  #       meth: ['std1', 'std2', 'even', 'quantiles']
+  #       numBins: [2, 5, 10]
+  #       zscore: True
+  #   hctsa_name: CO_HistogramAMI
+  #   ordered_args: ["tau", "meth", "numBins"]
+  
+  # NonlinearAutoCorr:
+  #   labels:
+  #     - correlation
+  #     - nonlinearautocorr
+  #   dependencies:
+  #   configs:
+  #     - taus: [!range [1, 2], !range [1, 4], !range [1, 6], !range [1, 8]]
+  #       doAbs: [False, True]
+  #       zscore: True
+  #     - taus: [!range [1, 3], !range [1, 5], !range [1, 7]]
+  #       doAbs: False
+  #       zscore: True
+  #     - taus: [[1, 3], [2, 4]]
+  #       doAbs: [False, True]
+  #       zscore: True
+  #     - taus: [[1, 3, 5], [2, 4, 6], [1, 2, 5], [1, 3, 4]]
+  #       doAbs: False
+  #       zscore: True
+  #     - taus: [[1, 3, 5, 7], [2, 4, 6, 8], [1, 4], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
+  #       doAbs: [False, True]
+  #       zscore: True
+  #     - taus: [[0, 1, 1], [0, 2, 2], [0, 3, 3], [0, 4, 4], [0, 5, 5], [0, 6, 6], [0, 0, 1], [0, 0, 2], [0, 0, 3], [0, 0, 4], [0, 0, 5], [0, 0, 6],
+  #             [0, 1, 2], [0, 1, 3], [0, 2, 3], [0, 1, 4], [0, 2, 4], [0, 3, 4], [0, 1, 5], [0, 2, 5], [0, 3, 5], [0, 4, 5], [0, 1, 6], [0, 2, 6], 
+  #             [0, 3, 6], [0, 4, 6], [0, 5, 6], [1, 1, 2], [1, 1, 3], [1, 2, 2], [1, 3, 3], [2, 2, 3], [2, 3, 3]]
+  #       doAbs: False
+  #       zscore: True
+  #   hctsa_name: CO_NonlinearAutocorr
+  #   ordered_args: ["taus", "doAbs"]
+
+  # CompareMinAMI:
+  #   labels:
+  #     - correlation
+  #     - AMI
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - binMethod: ['std1'] #'quantiles', 'even', 'std2']
+  #       numBins: [!range [2, 80]]
+  #       zscore: True
+  #   hctsa_name: CO_CompareMinAMI
+  #   ordered_args: ["binMethod", "numBins"]
+
+  # Embed2DAngleTau:
+  #   labels:
+  #     - embedding
+  #     - correlation
+  #   dependencies:
+  #   configs:
+  #     - maxTau: 50
+  #       zscore: True
+  #   hctsa_name: CO_Embed2_AngleTau
+  #   ordered_args: ["maxTau"]
+
+  # Embed2Basic:
+  #   labels:
+  #     - embedding
+  #     - correlation
+  #   dependencies:
+  #   configs:
+  #     - tau: [1, 'tau']
+  #       zscore: True
+  #   hctsa_name: CO_Embed2_Basic
+  #   ordered_args: ["tau"]
+
+  # Embed2Dist:
+  #   labels:
+  #     - embedding
+  #     - correlation
+  #   dependencies:
+  #     - scipy
+  #   configs:
+  #     - tau: 'tau'
+  #       zscore: True
+  #   hctsa_name: CO_Embed2_Dist
+  #   ordered_args: ["tau"]
+
+  # Embed2Shapes:
+  #  labels:
+  #    - embedding
+  #    - correlation
+  #  depedencies:
+  #  configs:
+  #    - tau: 'tau'
+  #      shape: 'circle'
+  #      r: [0.1, 1]
+  #      zscore: True
+  #  hctsa_name: CO_Embed2_Shapes
+  #  ordered_args: ["tau", "shape", "r"]
+
+  # GLSCF:
+  #   labels:
+  #     - correlation
+  #     - glscf
+  #   dependencies:
+  #   configs:
+  #     - alpha: 1.0
+  #       beta: [1.0, 2.0, 5.0, 10.0]
+  #       tau: !range [1, 5]
+  #       zscore: True
+  #     - alpha: 1.0
+  #       beta: [1.0, 2.0, 5.0, 10.0]
+  #       tau: 'tau'
+  #       zscore: True
+  #     - alpha: 2.0
+  #       beta: [2.0, 5.0]
+  #       tau: !range [1, 5]
+  #       zscore: True
+  #     - alpha: 2.0
+  #       beta: [2.0, 5.0]
+  #       tau: 'tau'
+  #       zscore: True
+  #   hctsa_name: CO_glscf
+  #   ordered_args: ["alpha", "beta", "tau"]
+
+  # FZCGLSCF:
+  #   labels:
+  #     - correlation
+  #     - glscf
+  #     - tau
+  #   dependencies:
+  #   configs:
+  #     - alpha: 1.0
+  #       beta: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  #       zscore: True
+  #     - alpha: 2.0
+  #       beta: [2, 5, 10]
+  #       zscore: True
+  #     - alpha: 5.0
+  #       beta: [5, 10]
+  #       zscore: True
+  #     - alpha: 10
+  #       beta: 10
+  #       zscore: True
+  #   hctsa_name: CO_fzcglscf
+  #   ordered_args: ["alpha", "beta"]
+
+  # StickAngles:
+  #   labels:
+  #     - correlation
+  #     - discrepancy
+  #   dependencies:
+  #   configs:
+  #     - zscore: True
+  #   hctsa_name: CO_StickAngles
+  #   ordered_args: []

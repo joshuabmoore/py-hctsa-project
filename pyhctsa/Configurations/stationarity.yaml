@@ -51,13 +51,68 @@ Stationarity:
   #   hctsa_name: ST_Length
   #   ordered_args:
 
-  FitPolynomial:
+  # FitPolynomial:
+  #   labels:
+  #     - trend
+  #     - stationarity
+  #   dependencies:
+  #   configs:
+  #     - k: !range [1, 4]
+  #       zscore: True
+  #   hctsa_name: ST_FitPolynomial
+  #   ordered_args: ["k"]
+
+  # DriftingMean:
+  #   labels:
+  #     - stationarity
+  #   dependencies:
+  #   configs:
+  #     - segmentHow: 'fix'
+  #       l: [20, 50, 100]
+  #       zscore: True
+  #     - segmentHow: 'num'
+  #       l: [5, 10]
+  #       zscore: True
+  #   hctsa_name: SY_DriftingMean
+  #   ordered_args: ["segmentHow", "l"]
+
+  # DynWin:
+  #     labels:
+  #       - stationarity
+  #     dependencies:
+  #       - scipy
+  #     configs:
+  #       - maxNumSegments: 10
+  #         zscore: True
+  #     hctsa_name: SY_DynWin
+  #     ordered_args: ["maxNumSegments"]
+
+  # KPSSTest:
+  #   labels:
+  #     - stationarity
+  #     - hypothesistest
+  #   dependencies:
+  #     - statsmodels
+  #   configs:
+  #     # - lags: [0, 1, 2]
+  #     #   zscore: True
+  #     - lags: [!range [0, 10]]
+  #       zscore: True
+  #   hctsa_name: SY_KPSStest
+  #   ordered_args: ["lags"]
+
+  LocalGlobal:
     labels:
-      - trend
       - stationarity
+      - distribution
     dependencies:
     configs:
-      - k: !range [1, 4]
+      - subsetHow: ['l']
+        nsamps: [10]
         zscore: True
-    hctsa_name: ST_FitPolynomial
-    ordered_args: ["k"]
+      # - subsetHow: 'p'
+      #   nsamps: [0.01, 0.05, 0.1, 0.5]
+      #   zscore: True
+    hctsa_name: SY_LocalGlobal
+    ordered_args: ["subsetHow", "nsamps"]
+

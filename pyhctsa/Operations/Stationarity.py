@@ -1,10 +1,312 @@
 import numpy as np
-from Correlation import FirstCrossing
+from Correlation import FirstCrossing, AutoCorr
 from numpy.typing import ArrayLike
 from typing import Dict, Union
+from loguru import logger
 from scipy.signal import detrend
+from scipy.stats import skew, kurtosis
 from utilities import signChange, ZScore
 from Information import MutualInfo
+from Entropy import SampleEntropy
+from statsmodels.tsa.stattools import kpss
+
+def LocalGlobal(y : ArrayLike, subsetHow : str = 'l', nsamps : Union[int, float, None] = None, randomSeed : int = 0) -> dict:
+    """
+    Compare local statistics to global statistics of a time series.
+
+    Parameters:
+    -----------
+    y : array_like
+        The time series to analyze.
+    subsetHow : str, optional
+        The method to select the local subset of time series:
+        'l': the first n points in a time series (default)
+        'p': an initial proportion of the full time series
+        'unicg': n evenly-spaced points throughout the time series
+        'randcg': n randomly-chosen points from the time series (chosen with replacement)
+    n : int or float, optional
+        The parameter for the method specified by subsetHow.
+        Default is 100 samples or 0.1 (10% of time series length) if proportion. 
+    random_seed : int, optional
+        Seed for random number generator (for 'randcg' option).
+
+    Returns:
+    --------
+    dict
+        A dictionary containing various statistical measures comparing
+        the subset to the full time series.
+    """
+    # check input time series is z-scored
+    y = np.asarray(y)
+
+    if nsamps is None:
+        if subsetHow in ['l', 'unicg', 'randcg']:
+            nsamps = 100 # 100 samples
+        elif subsetHow == 'p':
+            nsamps = 0.1 # 10 % of time series
+    
+    N = len(y)
+
+    # Determine subset range to use: r
+    if subsetHow == 'l':
+        # take first n pts of time series
+        r = np.arange(min(nsamps, N))
+    elif subsetHow == 'p':
+        # take initial proportion n of time series
+        r = np.arange(int(np.ceil(N*nsamps)))
+    elif subsetHow == 'unicg':
+        r = np.round(np.linspace(1, N, nsamps)).astype(int) - 1
+    elif subsetHow == 'randcg':
+        np.random.seed(randomSeed) # set seed for reproducibility
+        # Take n random points in time series; there could be repeats
+        r = np.random.randint(0, N, nsamps)
+    else:
+        raise ValueError(f"Unknown specifier, {subsetHow}. Can be either 'l', 'p', 'unicg', or 'randcg'.")
+
+    if len(r) < 5:
+        # It's not really appropriate to compute statistics on less than 5 datapoints
+        logger.warning(f"Time series (of length {N}) is too short")
+        return np.NaN
+    
+    # Compare statistics of this subset to those obtained from the full time series
+    out = {}
+    out['absmean'] = np.abs(np.mean(y[r])) # Makes sense without normalization if y is z-scored
+    out['std'] = np.std(y[r], ddof=1) # Makes sense without normalization if y is z-scored
+    out['median'] = np.median(y[r]) # if median is very small then normalization could be very noisy
+    raw_iqr_yr = np.percentile(y[r], 75, method='hazen') - np.percentile(y[r], 25, method='hazen')
+    raw_iqr_y = np.percentile(y, 75, method='hazen') - np.percentile(y, 25, method='hazen')
+    out['iqr'] = np.abs(1 - (raw_iqr_yr/raw_iqr_y))
+    out['skewness'] = np.abs(1 - (skew(y[r])/skew(y)))
+    # use Pearson definition (normal ==> 3.0)
+    out['kurtosis'] = np.abs(1 - (kurtosis(y[r], fisher=False)/kurtosis(y, fisher=False)))
+    out['ac1'] = np.abs(1 - (AutoCorr(y[r], 1, 'Fourier')[0]/AutoCorr(y, 1, 'Fourier')[0]))
+    out['sampen101'] = SampleEntropy(y[r], 1, 0.1)['sampen1']/SampleEntropy(y, 1, 0.1)['sampen1']
+
+    return out
+
+def KPSSTest(y : ArrayLike, lags : Union[int, list] = 0) -> dict:
+    """
+    Performs the KPSS (Kwiatkowski-Phillips-Schmidt-Shin) stationarity test.
+
+    This implementation uses the statsmodels kpss function to test whether a time series
+    is trend stationary. The null hypothesis is that the time series is trend stationary,
+    while the alternative hypothesis is that it is a non-stationary unit-root process.
+
+    The test was introduced in:
+    Kwiatkowski, D., Phillips, P. C., Schmidt, P., & Shin, Y. (1992). Testing the null 
+    hypothesis of stationarity against the alternative of a unit root: How sure are we 
+    that economic time series have a unit root? Journal of Econometrics, 54(1-3), 159-178.
+
+    The function can be used in two ways:
+    1. With a single lag value - returns basic test statistic and p-value
+    2. With multiple lag values - returns statistics about how the test results 
+       change across different lags
+
+    Parameters
+    ----------
+    y : ArrayLike
+        The input time series to analyze for stationarity
+    lags : Union[int, list], optional
+        Either:
+        - A single lag value (int) to compute the test statistic and p-value
+        - A list of lag values to analyze how the test results vary across lags
+        Default is 0.
+
+    Returns
+    -------
+    Dict[str, float]
+        The KPSS test statistic and p-value of the test.
+    """
+    if isinstance(lags, list):
+        # evaluate kpss at multiple lags
+        pValue = np.zeros(len(lags))
+        stat = np.zeros(len(lags))
+        for (i, l) in enumerate(lags):
+            s, pv, _, _ = kpss(y, nlags=l, regression='ct')
+            pValue[i] = pv
+            stat[i] = s
+        out = {}
+        # return stats on outputs
+        out['maxpValue'] = np.max(pValue)
+        out['minpValue'] = np.min(pValue)
+        out['maxstat'] = np.max(stat)
+        out['minstat'] = np.min(stat)
+        out['lagmaxstat'] = lags[np.argmax(stat)]
+        out['lagminstat'] = lags[np.argmin(stat)]
+    else:
+        if isinstance(lags, int):
+            stat, pValue, _, _ = kpss(y, nlags=lags, regression='ct')
+            # return the statistic and pvalue
+            out = {'stat': stat, 'pValue': pValue}
+        else:
+            raise TypeError("Expected either a single lag (as an int) or list of lags.")
+    
+    return out
+
+# def DynWin(y : ArrayLike, maxNumSegments : int = 10) -> dict:
+#     """
+#     How stationarity estimates depend on the number of time-series subsegments.
+    
+#     Specifically, variation in a range of local measures are implemented: mean,
+#     standard deviation, skewness, kurtosis, ApEn(1,0.2), SampEn(1,0.2), AC(1),
+#     AC(2), and the first zero-crossing of the autocorrelation function.
+    
+#     The standard deviation of local estimates of these quantities across the time
+#     series are calculated as an estimate of the stationarity in this quantity as a
+#     function of the number of splits, n_{seg}, of the time series.
+
+#     Parameters:
+#     -----------
+#     y : array_like
+#         the time series to analyze.
+#     maxNumSegments : int, optional
+#         the maximum number of segments to consider. Sweeps from 2 to
+#         maxNumSegments. Defaults to 10. 
+    
+#     Returns:
+#     --------
+#     out : dict
+#         the standard deviation of this set of 'stationarity' estimates across these window sizes
+#     """
+#     y = np.asarray(y)
+#     nsegr = np.arange(2, maxNumSegments+1, 1) # range of nseg to sweep across
+#     nmov = 1 # controls window overlap
+#     numFeatures = 11 # num of features
+#     fs = np.zeros((len(nsegr), numFeatures)) # standard deviation of feature values over windows
+#     taug = FirstCrossing(y, 'ac', 0, 'discrete') # global tau
+
+#     for i, nseg in enumerate(nsegr):
+#         wlen = int(np.floor(len(y)/nseg)) # window length
+#         inc = int(np.floor(wlen/nmov)) # increment to move at each step
+#         # if increment is rounded to zero, prop it up
+#         if inc == 0:
+#             inc = 1
+        
+#         numSteps = int(np.floor((len(y) - wlen)/inc) + 1)
+#         qs = np.zeros((numSteps, numFeatures))
+
+#         for j in range(numSteps):
+#             ySub = y[j*inc:j*inc+wlen]
+#             taul = FirstCrossing(ySub, 'ac', 0, 'discrete')
+
+#             qs[j, 0] = np.mean(ySub)
+#             qs[j, 1] = np.std(ySub, ddof=1)
+#             qs[j, 2] = skew(ySub)
+#             qs[j, 3] = kurtosis(ySub)
+#             sampenOut = SampleEntropy(ySub, 2, 0.15)
+#             qs[j, 4] = sampenOut['quadSampEn1'] # SampEn_1_015
+#             qs[j, 5] = sampenOut['quadSampEn2'] # SampEn_2_015
+#             qs[j, 6] = AutoCorr(ySub, 1, 'Fourier')[0] # AC1
+#             qs[j, 7] = AutoCorr(ySub, 2, 'Fourier')[0] # AC2
+#             # (Sometimes taug or taul can be longer than ySub; then these will output NaNs:)
+#             qs[j, 8] = AutoCorr(ySub, taug, 'Fourier')[0] # AC_glob_tau
+#             qs[j, 9] = AutoCorr(ySub, taul, 'Fourier')[0] # AC_loc_tau
+#             qs[j, 10] = taul
+        
+#         print(qs)
+#         fs[i, :numFeatures] = np.std(qs, ddof=1, axis=0)
+
+#     # fs contains std of quantities at all different 'scales' (segment lengths)
+#     fs = np.std(fs, ddof=1, axis=0) # how much does the 'std stationarity' vary over different scales?
+
+#     # Outputs
+#     out = {}
+#     out['stdmean'] = fs[0]
+#     out['stdstd'] = fs[1]
+#     out['stdskew'] = fs[2]
+#     out['stdkurt'] = fs[3]
+#     out['stdsampen1_015'] = fs[4]
+#     out['stdsampen2_015'] = fs[5]
+#     out['stdac1'] = fs[6]
+#     out['stdac2'] = fs[7]
+#     out['stdactaug'] = fs[8]
+#     out['stdactaul'] = fs[9]
+#     out['stdtaul'] = fs[10]
+
+#     return out 
+
+def DriftingMean(y: ArrayLike, segmentHow: str = 'fix', l: int = 20) -> Dict[str, float]:
+    """
+    Measures mean drift by analyzing mean and variance in time-series subsegments.
+
+    This operation splits a time series into segments, computes the mean and variance 
+    in each segment, and compares the maximum and minimum means to the mean variance. 
+    This helps identify if the time series has a drifting mean by comparing local 
+    statistics across different segments.
+
+    The method follows this approach:
+    1. Splits signal into frames of length N (or num segments)
+    2. Computes means of each frame
+    3. Computes variance for each frame
+    4. Compares ratio of max/min means with mean variance
+
+    Original idea by Rune from Matlab Central forum:
+    http://www.mathworks.de/matlabcentral/newsreader/view_thread/136539
+
+    Parameters
+    ----------
+    y : ArrayLike
+        The input time series
+    segmentHow : str, optional
+        Method to segment the time series:
+        - 'fix': fixed-length segments of length l (default)
+        - 'num': splits into l number of segments
+    l : int, optional
+        Specifies either:
+        - The length of segments when segmentHow='fix' (default=20)
+        - The number of segments when segmentHow='num'
+
+    Returns
+    -------
+    Dict[str, float]
+        Dictionary containing the measures of mean drift.
+    """
+    y = np.asarray(y)
+    N = len(y)
+    
+    # Set default segment parameters
+    if l is None:
+        l = 200 if segmentHow == 'fix' else 5
+    
+    # Calculate segment length
+    if segmentHow == 'num':
+        segment_length = int(np.floor(N/l))
+    elif segmentHow == 'fix':
+        segment_length = l
+    else:
+        raise ValueError(f"segmentHow must be 'fix' or 'num', got {segmentHow}")
+    
+    # Validate segment length
+    if segment_length <= 1 or segment_length > N:
+        return {
+            'max': np.nan,
+            'min': np.nan,
+            'mean': np.nan,
+            'meanmaxmin': np.nan,
+            'meanabsmaxmin': np.nan
+        }
+    
+    # Calculate number of complete segments
+    num_segments = int(np.floor(N/segment_length))
+    
+    # More efficient segmentation using array operations
+    segments = y[:num_segments * segment_length].reshape(num_segments, segment_length)
+    
+    # Calculate statistics
+    segment_means = np.mean(segments, axis=1)
+    segment_vars = np.var(segments, axis=1, ddof=1)
+    mean_var = np.mean(segment_vars)
+    
+    # Prepare output statistics
+    out = {
+        'max': np.max(segment_means) / mean_var,
+        'min': np.min(segment_means) / mean_var,
+        'mean': np.mean(segment_means) / mean_var
+    }
+    out['meanmaxmin'] = (out['max'] + out['min']) / 2
+    out['meanabsmaxmin'] = (np.abs(out['max']) + np.abs(out['min'])) / 2
+
+    return out
 
 def FitPolynomial(y : ArrayLike, k : int = 1) -> float:
     """

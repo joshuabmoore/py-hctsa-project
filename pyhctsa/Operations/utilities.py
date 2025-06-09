@@ -79,7 +79,7 @@ def histc(x, bins):
         res[el-1] += 1 # Increment appropriate bin.
     return res
 
-def binpicker(xmin, xmax, nbins):
+def binpicker(xmin, xmax, nbins, bindwidthEst=None):
     """
     Choose histogram bins. 
     A 1:1 port of the internal MATLAB function.
@@ -99,8 +99,11 @@ def binpicker(xmin, xmax, nbins):
     edges : numpy.ndarray
         Array of bin edges.
     """
+    if bindwidthEst == None:
+        rawBinWidth = abs(xmax - xmin)/nbins
+    else:
+        rawBinWidth = bindwidthEst
 
-    rawBinWidth = abs(xmax - xmin)/nbins
 
     if xmin is not None:
         if not np.issubdtype(type(xmin), np.floating):

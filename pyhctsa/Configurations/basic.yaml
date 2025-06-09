@@ -16,7 +16,7 @@ CO:
       - correlation
     dependencies:
     configs:
-      - max_tau: 20
+      - maxTau: 20
         what_method: 'ols'
         zscore: True
   
